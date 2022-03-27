@@ -37,7 +37,7 @@ class Company(db.Model):
   description = db.Column(db.String(300), nullable=True)
   
 
-@app.route("/init-db", methods=['POST'])
+@app.route("/init-db")
 def init_db():
   db.drop_all()
   db.create_all()
