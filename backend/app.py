@@ -54,6 +54,19 @@ def init_db():
 
   return "Database initalized successfully", 200
 
+@app.route("/company/delete", methods=['POST'])
+def deleteCompany():
+  try:
+    data = request.json['data']
+    company_id = data['company_id']
+    Company.query.filter_by(company_id = company_id).delete()
+    db.session.commit()
+
+    return jsonify({"success": True}), 200
+  except Exception as e:
+    return "{e}"
+  
+
 @app.route("/company/update", methods=['POST'])
 def updateCompany():
   try:
