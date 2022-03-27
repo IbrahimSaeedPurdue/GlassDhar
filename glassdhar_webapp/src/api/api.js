@@ -1,5 +1,9 @@
 import flaskApp from './axiosSetup';
 
+export const getCompanies = () => {
+  return flaskApp.get('/company/all');
+};
+
 export const insertCompany = ({ name, companySite, industry, numOfEmp, description }) => {
   return flaskApp.post('/company/insert', {
     data: {

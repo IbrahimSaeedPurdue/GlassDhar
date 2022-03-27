@@ -1,9 +1,10 @@
 import os
 from pickle import FALSE, TRUE
 
-from flask import Flask
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.inspection import inspect
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///glassdhar.db' #  it's sqlite rn, but will change later
@@ -27,7 +28,15 @@ CORS(app)
 # applicantSkills(userEmail: UNIQUE STRING, skillID: UNIQUE INT)
 # jobPostingSkills(companyID: UNIQUE INT, positionID: UNIQUE INT, skillID: UNIQUE INT)
 
-class Company(db.Model):
+class Serializer(object):
+    def serialize(self):
+        return {c: getattr(self, c) for c in inspect(self).attrs.keys()}
+
+    @staticmethod
+    def serialize_list(l):
+        return [m.serialize() for m in l]
+
+class Company(db.Model, Serializer):
   company_id = db.Column(db.Integer, primary_key=True)
   name = db.Column(db.String(80), unique=True, nullable=False)
   company_site = db.Column(db.String(80), nullable=True)
@@ -55,9 +64,18 @@ def init_db():
 
   return "Database initalized successfully", 200
 
+
 @app.route("/")
 def hello_world():
   return "<p>Hello, World!</p>"
+
+@app.route("/company/all")
+def get_companies():
+  try:
+    companies = Company.query.all()
+    return jsonify({"companies": Company.serialize_list(companies)}), 200
+  except Exception as e:
+    return f"{e}"
 
 if __name__ == '__main__':
   app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=True)
