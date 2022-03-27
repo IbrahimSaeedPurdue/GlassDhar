@@ -80,6 +80,34 @@ def updateCompany():
   except Exception as e:
     return f"an error occurred {e}"
 
+
+@app.route("/company/insert", methods=['POST'])
+def insertCompany():
+
+
+  try:
+    data = request.json['data']
+    companyName = data['name']
+    print(companyName)
+    if bool(Company.query.filter_by(name=companyName).first()): #Check if company exists
+      return "Company already exists, Silly Goose!"
+
+    db.session.add(
+      Company(
+        name = data['name'],
+        company_site = data['company_site'],
+        industry = data['industry'],
+        num_of_emp = data['num_of_emp'],
+        description = data['description']
+    ))
+    db.session.commit()
+
+
+    return jsonify({"success": True}), 200
+  except Exception as e:
+    return "{e}"
+
+
 @app.route("/")
 def hello_world():
   return "<p>Hello, World!</p>"
