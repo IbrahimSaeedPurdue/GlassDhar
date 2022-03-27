@@ -59,7 +59,6 @@ def init_db():
       description='blah blah blahblah blah blahblah blah blahblah blah blah blah blah blah')
   )
 
-
   db.session.commit()
 
   return "Database initalized successfully", 200

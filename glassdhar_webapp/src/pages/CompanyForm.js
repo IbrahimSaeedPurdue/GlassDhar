@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 
-import { insertCompany } from '../api/api.js';
+import { insertCompany, getCompanies, deleteCompany } from '../api/api.js';
 import Input from '../components/Input.js';
+import Company from '../components/Company.js';
 
 const companyFormSchema = yup.object({
   name: yup.string().max(80).required(),
@@ -29,6 +30,24 @@ const CompanyForm = (props) => {
   const onSubmit = (data) => {
     console.log(data);
   };
+
+  const [companies, setCompanies] = useState([]);
+
+  const fetchCompanies = async () => {
+    const companies = (await getCompanies()).data.companies;
+    // console.log(companies);
+    setCompanies(companies);
+  };
+
+  const companyDelete = async (companyId) => {
+    await deleteCompany(companyId);
+    fetchCompanies();
+  };
+
+  useEffect(() => {
+    console.log('getting companies...');
+    fetchCompanies();
+  }, []);
 
   return (
     /* "handleSubmit" will validate your inputs before invoking "onSubmit" */
@@ -87,7 +106,11 @@ const CompanyForm = (props) => {
       </form>
       <hr />
       <div>
-        <p>Companies:</p>
+        {companies.length > 0
+          ? companies.map((company, index) => (
+            <Company key={index} company={company} onCompanyDelete={companyDelete} />
+            ))
+          : 'no companies'}
       </div>
     </>
   );

@@ -15,3 +15,11 @@ export const insertCompany = ({ name, companySite, industry, numOfEmp, descripti
     }
   });
 };
+
+export const deleteCompany = (companyId) => {
+  return flaskApp.post('/company/delete', {
+    data: {
+      company_id: companyId
+    }
+  });
+};
