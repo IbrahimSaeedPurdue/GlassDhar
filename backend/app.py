@@ -45,7 +45,7 @@ class Company(db.Model, Serializer):
   description = db.Column(db.String(300), nullable=True)
   
 
-@app.route("/init-db")
+@app.route("/init-db", methods=['POST', 'GET'])
 def init_db():
   db.drop_all()
   db.create_all()
@@ -58,10 +58,75 @@ def init_db():
       num_of_emp="500000",
       description='blah blah blahblah blah blahblah blah blahblah blah blah blah blah blah')
   )
-
   db.session.commit()
 
   return "Database initalized successfully", 200
+
+@app.route("/company/delete", methods=['POST'])
+def deleteCompany():
+  try:
+    data = request.json['data']
+    company_id = data['company_id']
+    Company.query.filter_by(company_id = company_id).delete()
+    db.session.commit()
+
+    return jsonify({"success": True}), 200
+  except Exception as e:
+    return "{e}"
+  
+
+@app.route("/company/update", methods=['POST'])
+def updateCompany():
+  try:
+    data = request.json['data']
+    company_id = data['company_id']
+    company_name = data['name']
+    company_site = data['company_site']
+    industry = data['industry']
+    num_of_emp = data['num_of_emp']
+    description = data['description']
+
+    company = Company.query.filter_by(company_id=company_id)
+
+    company.update(dict(
+      name=company_name,
+      company_site=company_site,
+      industry=industry,
+      num_of_emp=num_of_emp,
+      description=description
+    ))
+    db.session.commit()
+
+    return jsonify({"success": True}), 200
+  except Exception as e:
+    return f"an error occurred {e}"
+
+
+@app.route("/company/insert", methods=['POST'])
+def insertCompany():
+
+
+  try:
+    data = request.json['data']
+    companyName = data['name']
+    print(companyName)
+    if bool(Company.query.filter_by(name=companyName).first()): #Check if company exists
+      return "Company already exists, Silly Goose!"
+
+    db.session.add(
+      Company(
+        name = data['name'],
+        company_site = data['company_site'],
+        industry = data['industry'],
+        num_of_emp = data['num_of_emp'],
+        description = data['description']
+    ))
+    db.session.commit()
+
+
+    return jsonify({"success": True}), 200
+  except Exception as e:
+    return "{e}"
 
 
 @app.route("/")
