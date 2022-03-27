@@ -67,6 +67,10 @@ def deleteCompany():
   try:
     data = request.json['data']
     company_id = data['company_id']
+
+    if bool(Company.query.filter_by(company_id=company_id).first()): #Check if company exists
+      return "Company already exists, Silly Goose!"
+
     Company.query.filter_by(company_id = company_id).delete()
     db.session.commit()
 
@@ -85,6 +89,9 @@ def updateCompany():
     industry = data['industry']
     num_of_emp = data['num_of_emp']
     description = data['description']
+
+    if bool(Company.query.filter_by(company_id=company_id).first()): #Check if company exists
+      return "Company already exists, Silly Goose!"
 
     company = Company.query.filter_by(company_id=company_id)
 
