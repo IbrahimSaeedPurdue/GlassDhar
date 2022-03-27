@@ -130,4 +130,6 @@ dmypy.json
 
 # React stuff
 node_modules/
+
+# ignore db
 *.db
