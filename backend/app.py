@@ -2,9 +2,10 @@ from enum import unique
 import os
 from pickle import FALSE, TRUE
 
-from flask import Flask
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
+import sqlite3
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///glassdhar.db' #  it's sqlite rn, but will change later
@@ -37,7 +38,7 @@ class Company(db.Model):
   description = db.Column(db.String(300), nullable=True)
   
 
-@app.route("/init-db", methods=['POST'])
+@app.route("/init-db", methods=['POST', 'GET'])
 def init_db():
   db.drop_all()
   db.create_all()
@@ -50,11 +51,35 @@ def init_db():
       num_of_emp="500000",
       description='blah blah blahblah blah blahblah blah blahblah blah blah blah blah blah')
   )
-
-
   db.session.commit()
 
   return "Database initalized successfully", 200
+
+@app.route("/company/update", methods=['POST'])
+def updateCompany():
+  try:
+    data = request.json['data']
+    company_id = data['company_id']
+    company_name = data['name']
+    company_site = data['company_site']
+    industry = data['industry']
+    num_of_emp = data['num_of_emp']
+    description = data['description']
+
+    company = Company.query.filter_by(company_id=company_id)
+
+    company.update(dict(
+      name=company_name,
+      company_site=company_site,
+      industry=industry,
+      num_of_emp=num_of_emp,
+      description=description
+    ))
+    db.session.commit()
+    
+    return jsonify({"success": True}), 200
+  except Exception as e:
+    return f"an error occurred {e}"
 
 @app.route("/")
 def hello_world():
