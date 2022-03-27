@@ -30,7 +30,7 @@ CORS(app)
 
 class Company(db.Model):
   company_id = db.Column(db.Integer, primary_key=True)
-  name = db.Column(db.String(80), unique=TRUE, nullable=False)
+  name = db.Column(db.String(80), unique=True, nullable=False)
   company_site = db.Column(db.String(80), nullable=True)
   industry = db.Column(db.String(80), nullable=False)
   num_of_emp = db.Column(db.Integer, nullable=False)
