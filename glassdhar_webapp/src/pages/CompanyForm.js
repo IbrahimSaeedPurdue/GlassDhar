@@ -28,7 +28,7 @@ const CompanyForm = (props) => {
   });
 
   const onSubmit = (data) => {
-    console.log(data);
+    companyInsert(data);
   };
 
   const [companies, setCompanies] = useState([]);
@@ -37,6 +37,11 @@ const CompanyForm = (props) => {
     const companies = (await getCompanies()).data.companies;
     // console.log(companies);
     setCompanies(companies);
+  };
+
+  const companyInsert = async (company) => {
+    await insertCompany(company);
+    fetchCompanies();
   };
 
   const companyDelete = async (companyId) => {

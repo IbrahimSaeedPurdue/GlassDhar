@@ -10,7 +10,7 @@ const Company = (props) => {
       <p>num_of_emp: {props.company.num_of_emp}</p>
       <p>description: {props.company.description}</p>
       {props.onCompanyDelete
-        ? <button onClick={props.onCompanyDelete}>delete</button>
+        ? <button onClick={() => { props.onCompanyDelete(props.company.company_id) ;}}>delete</button>
         : null}
 
     </div>
