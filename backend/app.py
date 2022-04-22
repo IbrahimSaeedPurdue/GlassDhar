@@ -1,10 +1,14 @@
+from msilib.schema import Class
 import os
 from pickle import FALSE, TRUE
+from unicodedata import name
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.inspection import inspect
+
+from datetime import datetime
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///glassdhar.db' #  it's sqlite rn, but will change later
@@ -36,28 +40,124 @@ class Serializer(object):
     def serialize_list(l):
         return [m.serialize() for m in l]
 
+
+### TABLES ###
+applicant_skills = db.Table('ApplicantSkills',
+  db.Column('applicant_id', db.Integer, db.ForeignKey('applicant.id'), primary_key=True),
+  db.Column('skill_id', db.Integer, db.ForeignKey('skill.id'), primary_key=True)
+)
+
+job_posting_skills = db.Table('JobPostingSkills',
+  db.Column('position_name', db.String(300), db.ForeignKey('job_posting.position_name'), primary_key=True),
+  db.Column('company_id', db.Integer, db.ForeignKey('job_posting.job_company_id'), primary_key=True),
+  db.Column('skill_id', db.Integer, db.ForeignKey('skill.id'), primary_key=True)
+)
+
+### MODELS ###
 class Company(db.Model, Serializer):
   company_id = db.Column(db.Integer, primary_key=True)
   name = db.Column(db.String(80), unique=True, nullable=False)
-  company_site = db.Column(db.String(80), nullable=True)
+  company_site = db.Column(db.String(80))
   industry = db.Column(db.String(80), nullable=False)
   num_of_emp = db.Column(db.Integer, nullable=False)
-  description = db.Column(db.String(300), nullable=True)
-  
+  description = db.Column(db.String(300))
+
+  employees = db.relationship("Applicant", backref='company', lazy=True)
+  job_postings = db.relationship("JobPosting", backref='company')
+
+class Applicant(db.Model, Serializer):
+  id = db.Column(db.Integer, primary_key=True)
+  email = db.Column(db.String(80), unique=True)
+  name = db.Column(db.String(80), nullable=False)
+  gpa = db.Column(db.Float)
+  graduation_date = db.Column(db.DateTime)
+  resume_link = db.Column(db.String(300), nullable=False)
+  github_link = db.Column(db.String(300))
+  portfolio_link = db.Column(db.String(300))
+  # passwordHash = db.Column(db.Integer)
+
+  current_company_id = db.Column(db.Integer, db.ForeignKey('company.company_id'))
+  university_id = db.Column(db.Integer, db.ForeignKey('university.id'))
+
+class University(db.Model, Serializer):
+  id = db.Column(db.Integer, primary_key=True)
+  name = db.Column(db.String(300), nullable=False)
+
+  students = db.relationship("Applicant", backref='university', lazy=True)
+
+class Skill(db.Model, Serializer):  
+  id = db.Column(db.Integer, primary_key=True)
+  name = db.Column(db.String(300), unique=True, nullable=False)
+
+  applicants = db.relationship('Applicant', secondary=applicant_skills, backref='skills', lazy=True)
+  # job_postings = db.relationship('JobPosting', secondary=job_posting_skills, backref='skills', lazy=True)
+
+class JobPosting(db.Model, Serializer):
+  position_name = db.Column(db.String(300), primary_key=True)
+  job_company_id = db.Column(db.Integer, db.ForeignKey('company.company_id'), primary_key=True)
+  location = db.Column(db.String(300))
+  salary = db.Column(db.Integer)
+  job_description = db.Column(db.String(2000))
+  date_created = db.Column(db.DateTime, nullable=False)
+
 
 @app.route("/init-db", methods=['POST', 'GET'])
 def init_db():
   db.drop_all()
   db.create_all()
 
-  db.session.add(
-    Company(
+  c1 = Company(
       name="Apple",
       company_site="www.apple.com",
       industry='Technology',
       num_of_emp="500000",
-      description='blah blah blahblah blah blahblah blah blahblah blah blah blah blah blah')
+      description='blah blah blahblah blah blahblah blah blahblah blah blah blah blah blah'
+      )
+
+  db.session.add(c1)
+
+  a1 = Applicant(
+      email = "ibrahim.alassad001@gmail.com",
+      name = "Ibrahim Saeed",
+      gpa = 11.1,
+      graduation_date = datetime.now(),
+      resume_link = "www.mylittleresume.com",
+      github_link = "www.mylittlegithub.com",
+      portfolio_link = "www.mylittleportfolio.com",
+      # passwordHash = db.Column(db.Integer)
   )
+
+  db.session.add(a1)
+
+  u1 = University(name="Purdue University")
+
+  skill1 = Skill(name="java")
+  skill2 = Skill(name="python")
+  skill3 = Skill(name="tensorflow")
+
+  db.session.add(skill1)
+  db.session.add(skill2)
+  db.session.add(skill3)
+
+  c1.employees.append(a1)
+  u1.students.append(a1)
+  a1.skills.extend((skill1, skill2, skill3))
+
+  posting1 = JobPosting(
+    position_name= "Software Engineering Intern",
+    location = "Remote",
+    salary = 120000,
+    job_description = "blah blah blah",
+    date_created = datetime.now()
+  )
+  # print('11111111111111111')
+  c1.job_postings.append(posting1)
+  # print('22222222222222222')
+  # posting1.skills.extend((skill1, skill2, skill3))
+  # print('33333333333333333')
+  db.session.add(posting1)
+  # print('44444444444444444')
+
   db.session.commit()
 
   return "Database initalized successfully", 200
