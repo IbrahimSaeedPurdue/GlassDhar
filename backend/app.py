@@ -7,13 +7,14 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.inspection import inspect
-
+from sqlalchemy_serializer import SerializerMixin
 from datetime import datetime
 
 app = Flask(__name__)
 # it's sqlite rn, but will change later
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///glassdhar.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ECHO'] = False
 
 db = SQLAlchemy(app)
 
@@ -32,15 +33,6 @@ CORS(app)
 # application(userEmail: UNIQUE STRING, companyID: UNIQUE INT, positionID: UNIQUE INT)
 # applicantSkills(userEmail: UNIQUE STRING, skillID: UNIQUE INT)
 # jobPostingSkills(companyID: UNIQUE INT, positionID: UNIQUE INT, skillID: UNIQUE INT)
-
-
-class Serializer(object):
-    def serialize(self):
-        return {c: getattr(self, c) for c in inspect(self).attrs.keys()}
-
-    @staticmethod
-    def serialize_list(l):
-        return [m.serialize() for m in l]
 
 
 ### TABLES ###
@@ -68,7 +60,10 @@ applications = db.Table('Applications',
 ### MODELS ###
 
 
-class Company(db.Model, Serializer):
+class Company(db.Model, SerializerMixin):
+    serialize_only = ('company_id', 'name', 'company_site', 'industry', 'num_of_emp', 'description')
+    serialize_rules = ('-employees', '-job_postings')
+
     company_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
     company_site = db.Column(db.String(80))
@@ -80,7 +75,7 @@ class Company(db.Model, Serializer):
     job_postings = db.relationship("JobPosting", backref='company')
 
 
-class Applicant(db.Model, Serializer):
+class Applicant(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(80), unique=True)
     name = db.Column(db.String(80), nullable=False)
@@ -98,14 +93,14 @@ class Applicant(db.Model, Serializer):
     jobs_applications = db.relationship('JobPosting', secondary=applications, backref='applicants')
 
 
-class University(db.Model, Serializer):
+class University(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(300), nullable=False)
 
     students = db.relationship("Applicant", backref='university', lazy=True)
 
 
-class Skill(db.Model, Serializer):
+class Skill(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(300), unique=True, nullable=False)
 
@@ -115,7 +110,7 @@ class Skill(db.Model, Serializer):
                                    backref='skills', lazy=True)
 
 
-class JobPosting(db.Model, Serializer):
+class JobPosting(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     position_name = db.Column(db.String(300))
     job_company_id = db.Column(db.Integer, db.ForeignKey(
@@ -192,6 +187,7 @@ def init_db():
 
     return "Database initalized successfully", 200
 
+### ----- COMPANY ROUTES ----- ###
 
 @app.route("/company/delete", methods=['POST'])
 def deleteCompany():
@@ -264,17 +260,26 @@ def insertCompany():
     except Exception as e:
         return "{e}"
 
+@app.route("/company/<company_id>")
+def getCompany(company_id):
+  try:
+    # db.session.connection(execution_options={'isolation_level': 'SERIALIZABLE'})
+    company = Company.query.get(company_id)
+    
+    company_dict = company.to_dict()
+    print(company.job_postings)
 
-@app.route("/")
-def hello_world():
-    return "<p>Hello, World!</p>"
-
+    return jsonify({'company': company_dict}), 200
+  except Exception as e:
+    return f"{e}"
 
 @app.route("/company/all")
 def get_companies():
     try:
         companies = Company.query.all()
-        return jsonify({"companies": Company.serialize_list(companies)}), 200
+        companies_dict = [c.to_dict() for c in companies]
+
+        return jsonify({"companies": companies_dict}), 200
     except Exception as e:
         return f"{e}"
 
