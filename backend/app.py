@@ -1,5 +1,4 @@
 import json
-from msilib.schema import Class
 import os
 from pickle import FALSE, TRUE
 from unicodedata import name
@@ -255,7 +254,7 @@ def updateCompany():
 
         return jsonify({"success": True}), 200
     except Exception as e:
-        return f"an error occurred {e}"
+        return "{e}"
 
 
 @app.route("/company/insert", methods=['POST'])
@@ -289,7 +288,7 @@ def getCompany(company_id):
         # db.session.connection(execution_options={'isolation_level': 'SERIALIZABLE'})
         company = Company.query.get(company_id)
         if company is None:
-            return f'company id={company_id} does not exist', 404
+          return f'company id ={company_id} does not exist', 404
 
         company_dict = company.to_dict()
         return jsonify({'company': company_dict}), 200
@@ -308,6 +307,26 @@ def getCompanies():
         return f"{e}"
 
 ### JOB POSTING ROUTES ###
+
+@app.route("/jobposting/insert", methods=['POST'])
+def insertJobPosting():
+  try:
+    data = request.json['data']
+    today = datetime.today()
+    db.session.add(
+      JobPosting(
+        position_name = data['position_name'],
+        location = data['location'],
+        salary = data['salary'],
+        job_level = data['job_level'],
+        job_description = data['job_description'],
+        date_created = today
+    ))
+    db.session.commit()
+
+    return jsonify({"success": True}), 200
+  except Exception as e:
+    return "job posting failed"
 
 @app.route("/job-postings/filter", methods=['POST'])
 def jobPostingFilterByDetails():
