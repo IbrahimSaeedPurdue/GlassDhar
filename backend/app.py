@@ -410,6 +410,39 @@ def updateJobPosting():
   except Exception as e:
     return f"an error occurred {e}"
 
+@app.route("/jobposting/delete", methods=['POST'])
+def deleteJobPosting():
+  try:
+    data = request.json['data']
+    id = data['id']
+
+    if bool(JobPosting.query.filter_by(id=id).first()) == False: #Check if job posting exists
+      return "Job Posting doesn't exists, Silly Goose!"
+
+    JobPosting.query.filter_by(id=id).delete()
+    db.session.commit()
+
+    return jsonify({"success": True}), 200
+  except Exception as e:
+    return f"{e}"
+   
+
+
+# def deleteCompany():
+#     try:
+#         data = request.json['data']
+#         company_id = data['company_id']
+
+#         if bool(Company.query.filter_by(company_id=company_id).first()) == False:  # Check if company exists
+#             return "Company doesn't exists, Silly Goose!"
+
+#         Company.query.filter_by(company_id=company_id).delete()
+#         db.session.commit()
+
+#         return jsonify({"success": True}), 200
+#     except Exception as e:
+#         return "{e}"
+
 
 @app.route("/job-postings/filter", methods=['POST'])
 def jobPostingFilterByDetails():
