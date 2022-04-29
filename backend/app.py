@@ -309,7 +309,6 @@ def getCompanies():
 
 ### JOB POSTING ROUTES ###
 
-
 @app.route("/job-postings/filter", methods=['POST'])
 def jobPostingFilterByDetails():
     data = request.json['data']
@@ -335,7 +334,7 @@ def jobPostingFilterByDetails():
 
     if location is not None and location != '':
         postings = postings.filter(JobPosting.location == location)
-
+ 
     # if skills is not None and len(skills) > 0:
     #   postings = postings.join(Skill).filter(Skill.id.in_(set(skills)))
 
@@ -346,6 +345,7 @@ def jobPostingFilterByDetails():
     return jsonify({'job_postings': postings}), 200
 
 ### SKILLS ROUTES ###
+
 @app.route('/skills/all')
 def getSkills():
   skills = Skill.query.all()
