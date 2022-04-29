@@ -345,7 +345,13 @@ def jobPostingFilterByDetails():
     postings = [p.to_dict() for p in postings]
     return jsonify({'job_postings': postings}), 200
 
+### SKILLS ROUTES ###
+@app.route('/skills/all')
+def getSkills():
+  skills = Skill.query.all()
+  skills = [s.to_dict() for s in skills]
 
+  return jsonify({'skills': skills}), 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=True)
