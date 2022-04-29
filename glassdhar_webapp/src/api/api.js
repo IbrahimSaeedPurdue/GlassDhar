@@ -1,5 +1,6 @@
 import flaskApp from './axiosSetup';
 
+// ------- COMPANIES -------
 export const getCompanies = () => {
   return flaskApp.get('/company/all');
 };
@@ -22,4 +23,22 @@ export const deleteCompany = (companyId) => {
       company_id: companyId
     }
   });
+};
+
+// ------- JOB POSTINGS -------
+export const jobPostingFilterByDetails = ({ name, companyId, location, jobLevel, minSalary, skills }) => {
+  return flaskApp.post('job-postings/filter', {
+    data: {
+      name: name,
+      company_id: companyId,
+      location: location,
+      job_level: jobLevel,
+      min_salary: minSalary,
+      skills: skills
+    }
+  });
+};
+// ------- SKILLS -------
+export const getSkills = () => {
+  return flaskApp.get('/skills/all');
 };
