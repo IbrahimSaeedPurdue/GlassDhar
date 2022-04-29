@@ -26,9 +26,10 @@ export const deleteCompany = (companyId) => {
 };
 
 // ------- JOB POSTINGS -------
-export const jobPostingFilterByDetails = ({ companyId, location, jobLevel, minSalary, skills }) => {
+export const jobPostingFilterByDetails = ({ name, companyId, location, jobLevel, minSalary, skills }) => {
   return flaskApp.post('job-postings/filter', {
     data: {
+      name: name,
       company_id: companyId,
       location: location,
       job_level: jobLevel,

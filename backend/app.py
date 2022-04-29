@@ -176,7 +176,7 @@ def init_db():
     a1.skills.extend((skill1, skill2, skill3))
 
     posting1 = JobPosting(
-        position_name="Software Engineering Intern",
+        position_name="software engineering intern",
         location="remote",
         salary=120000,
         job_level='internship',
@@ -186,7 +186,7 @@ def init_db():
 
     posting2 = JobPosting(
         position_name="STEP Intern",
-        location="Mountain View",
+        location="mountain view",
         salary=1000,
         job_level='internship',
         job_description="blah blah blah",
@@ -312,6 +312,7 @@ def getCompanies():
 @app.route("/job-postings/filter", methods=['POST'])
 def jobPostingFilterByDetails():
     data = request.json['data']
+    name = data.get('name')
     min_salary = data.get('min_salary')
     company_id = data.get('company_id')
     location = data.get('location')
@@ -326,6 +327,10 @@ def jobPostingFilterByDetails():
         JobPosting.salary >= min_salary,
     )
 
+    if name is not None and name != '':
+      search_name = "%{}%".format(name.lower())
+      postings = postings.filter(JobPosting.position_name.like(search_name))
+
     if company_id is not None and company_id != -1:
       postings = postings.filter(JobPosting.job_company_id == company_id)  
 
@@ -333,7 +338,8 @@ def jobPostingFilterByDetails():
       postings = postings.filter(JobPosting.job_level == job_level)
 
     if location is not None and location != '':
-        postings = postings.filter(JobPosting.location == location)
+        search_location = "%{}%".format(location.lower())
+        postings = postings.filter(JobPosting.location.like(search_location))
  
     # if skills is not None and len(skills) > 0:
     #   postings = postings.join(Skill).filter(Skill.id.in_(set(skills)))

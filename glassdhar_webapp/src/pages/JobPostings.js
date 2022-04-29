@@ -36,7 +36,7 @@ const JobPostings = () => {
   };
 
   useEffect(() => {
-    fetchJobPostings({});
+    fetchJobPostings({}); // gets all job postings
   }, []);
 
   const [postings, setPostings] = useState([]);
