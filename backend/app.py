@@ -1,4 +1,3 @@
-from msilib.schema import Class
 import os
 from pickle import FALSE, TRUE
 from unicodedata import name
@@ -247,6 +246,79 @@ def get_companies():
     return jsonify({"companies": Company.serialize_list(companies)}), 200
   except Exception as e:
     return f"{e}"
+
+
+@app.route("/jobposting/update", methods=['POST'])
+def updateJobPosting():
+  try:
+    data = request.json['data']
+
+    # job_level ADDD!
+
+    position_name = data['position_name']
+    job_company_id = data['job_company_id']
+    location = data['location']
+    salary = data['salary']
+    job_description = data['job_description']
+
+    if bool(JobPosting.query.filter_by(position_name=position_name, job_company_id=job_company_id).first()) == False: #Check if company exists
+      return "Job posting doesn't exists, Silly Goose!"
+
+    jobposting = JobPosting.query.filter_by(position_name=position_name)
+
+    jobposting.update(dict(
+      position_name = position_name,
+      job_company_id = job_company_id,
+      location = location,
+      salary = salary,
+      job_description = job_description,
+    ))
+    db.session.commit()
+
+    return jsonify({"success": True}), 200
+  except Exception as e:
+    return f"an error occurred {e}"
+
+
+
+@app.route("/applicant/update", methods=['POST'])
+def updateApplicant():
+  try:
+    data = request.json['data']
+
+    # do we need to update current_company_id, university_id???
+
+    id = data['id']
+    email = data['email']
+    name = data['name']
+    gpa = data['gpa']
+    graduation_date = data['graduation_date']
+    resume_link = data['resume_link']
+    github_link = data['github_link']
+    portfolio_link = data['portfolio_link']
+
+    if bool(Applicant.query.filter_by(id=id).first()) == False: #Check if applicant exists
+      return "Applicant doesn't exists, Silly Goose!"
+
+    applicant = Applicant.query.filter_by(id=id)
+
+    applicant.update(dict(
+      email = email,
+      name = name,
+      gpa = gpa,
+      graduation_date = graduation_date,  #remove for testing purpose
+      resume_link = resume_link,
+      github_link = github_link,
+      portfolio_link = portfolio_link
+
+    ))
+    db.session.commit()
+
+    return jsonify({"success": True}), 200
+  except Exception as e:
+    return f"an error occurred {e}"
+
+
 
 if __name__ == '__main__':
   app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=True)
