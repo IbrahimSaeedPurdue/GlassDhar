@@ -307,7 +307,82 @@ def getCompanies():
     except Exception as e:
         return f"{e}"
 
-### JOB POSTING ROUTES ###
+
+
+### ----- APPLICANT ROUTES ----- ###
+
+@app.route("/applicant/update", methods=['POST'])
+def updateApplicant():
+  try:
+    data = request.json['data']
+
+    # do we need to update current_company_id, university_id???
+
+    id = data['id']
+    email = data['email']
+    name = data['name']
+    gpa = data['gpa']
+    graduation_date = data['graduation_date']
+    resume_link = data['resume_link']
+    github_link = data['github_link']
+    portfolio_link = data['portfolio_link']
+
+    if bool(Applicant.query.filter_by(id=id).first()) == False: #Check if applicant exists
+      return "Applicant doesn't exists, Silly Goose!"
+
+    applicant = Applicant.query.filter_by(id=id)
+
+    applicant.update(dict(
+      email = email,
+      name = name,
+      gpa = gpa,
+      graduation_date = graduation_date,  #remove for testing purpose
+      resume_link = resume_link,
+      github_link = github_link,
+      portfolio_link = portfolio_link
+
+    ))
+    db.session.commit()
+
+    return jsonify({"success": True}), 200
+  except Exception as e:
+    return f"an error occurred {e}"
+
+
+
+### ----- JOB POSTING ROUTES ----- ###
+
+@app.route("/jobposting/update", methods=['POST'])
+def updateJobPosting():
+  try:
+    data = request.json['data']
+
+    # job_level ADDD!
+
+    position_name = data['position_name']
+    job_company_id = data['job_company_id']
+    location = data['location']
+    salary = data['salary']
+    job_description = data['job_description']
+
+    if bool(JobPosting.query.filter_by(position_name=position_name, job_company_id=job_company_id).first()) == False: #Check if company exists
+      return "Job posting doesn't exists, Silly Goose!"
+
+    jobposting = JobPosting.query.filter_by(position_name=position_name)
+
+    jobposting.update(dict(
+      position_name = position_name,
+      job_company_id = job_company_id,
+      location = location,
+      salary = salary,
+      job_description = job_description,
+    ))
+    db.session.commit()
+
+    return jsonify({"success": True}), 200
+  except Exception as e:
+    return f"an error occurred {e}"
+
 
 @app.route("/job-postings/filter", methods=['POST'])
 def jobPostingFilterByDetails():
@@ -350,7 +425,9 @@ def jobPostingFilterByDetails():
     postings = [p.to_dict() for p in postings]
     return jsonify({'job_postings': postings}), 200
 
-### SKILLS ROUTES ###
+
+
+### ----- SKILLS ROUTES ----- ###
 
 @app.route('/skills/all')
 def getSkills():
@@ -358,77 +435,6 @@ def getSkills():
   skills = [s.to_dict() for s in skills]
 
   return jsonify({'skills': skills}), 200
-
-
-@app.route("/jobposting/update", methods=['POST'])
-def updateJobPosting():
-  try:
-    data = request.json['data']
-
-    # job_level ADDD!
-
-    position_name = data['position_name']
-    job_company_id = data['job_company_id']
-    location = data['location']
-    salary = data['salary']
-    job_description = data['job_description']
-
-    if bool(JobPosting.query.filter_by(position_name=position_name, job_company_id=job_company_id).first()) == False: #Check if company exists
-      return "Job posting doesn't exists, Silly Goose!"
-
-    jobposting = JobPosting.query.filter_by(position_name=position_name)
-
-    jobposting.update(dict(
-      position_name = position_name,
-      job_company_id = job_company_id,
-      location = location,
-      salary = salary,
-      job_description = job_description,
-    ))
-    db.session.commit()
-
-    return jsonify({"success": True}), 200
-  except Exception as e:
-    return f"an error occurred {e}"
-
-
-
-@app.route("/applicant/update", methods=['POST'])
-def updateApplicant():
-  try:
-    data = request.json['data']
-
-    # do we need to update current_company_id, university_id???
-
-    id = data['id']
-    email = data['email']
-    name = data['name']
-    gpa = data['gpa']
-    graduation_date = data['graduation_date']
-    resume_link = data['resume_link']
-    github_link = data['github_link']
-    portfolio_link = data['portfolio_link']
-
-    if bool(Applicant.query.filter_by(id=id).first()) == False: #Check if applicant exists
-      return "Applicant doesn't exists, Silly Goose!"
-
-    applicant = Applicant.query.filter_by(id=id)
-
-    applicant.update(dict(
-      email = email,
-      name = name,
-      gpa = gpa,
-      graduation_date = graduation_date,  #remove for testing purpose
-      resume_link = resume_link,
-      github_link = github_link,
-      portfolio_link = portfolio_link
-
-    ))
-    db.session.commit()
-
-    return jsonify({"success": True}), 200
-  except Exception as e:
-    return f"an error occurred {e}"
 
 
 
