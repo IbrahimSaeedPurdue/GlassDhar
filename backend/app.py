@@ -1,5 +1,5 @@
 import json
-from msilib.schema import Class
+#from msilib.schema import Class
 import os
 from pickle import FALSE, TRUE
 from unicodedata import name
@@ -208,8 +208,9 @@ def init_db():
 
     return "Database initalized successfully", 200
 
-### ----- COMPANY ROUTES ----- ###
 
+
+### ----- COMPANY ROUTES ----- ###
 
 @app.route("/company/delete", methods=['POST'])
 def deleteCompany():
@@ -318,7 +319,7 @@ def updateApplicant():
 
     # do we need to update current_company_id, university_id???
 
-    id = data['id']
+    #id = data['id']
     email = data['email']
     name = data['name']
     gpa = data['gpa']
@@ -327,16 +328,16 @@ def updateApplicant():
     github_link = data['github_link']
     portfolio_link = data['portfolio_link']
 
-    if bool(Applicant.query.filter_by(id=id).first()) == False: #Check if applicant exists
+    if bool(Applicant.query.filter_by(email=email).first()) == False: #Check if applicant exists
       return "Applicant doesn't exists, Silly Goose!"
 
-    applicant = Applicant.query.filter_by(id=id)
+    applicant = Applicant.query.filter_by(email=email)
 
     applicant.update(dict(
       email = email,
       name = name,
       gpa = gpa,
-      graduation_date = graduation_date,  #remove for testing purpose
+      graduation_date = datetime.strptime(graduation_date, "%d/%m/%Y"),
       resume_link = resume_link,
       github_link = github_link,
       portfolio_link = portfolio_link
@@ -347,6 +348,32 @@ def updateApplicant():
     return jsonify({"success": True}), 200
   except Exception as e:
     return f"an error occurred {e}"
+
+@app.route("/applicant/insert", methods=['POST'])
+def insertApplicant():
+
+    try:
+        data = request.json['data']
+        email = data['email']
+        print(email)
+        if bool(Applicant.query.filter_by(email=email).first()):  # Check if applicant exists
+            return "Applicant already exists, Silly Goose!"
+
+        db.session.add(
+            Applicant(
+                email = data['email'],
+                name = data['name'],
+                gpa = data['gpa'],
+                graduation_date = datetime.strptime(data['graduation_date'], "%d/%m/%Y"),
+                resume_link = data['resume_link'],
+                github_link = data['github_link'],
+                portfolio_link = data['portfolio_link']
+            ))
+        db.session.commit()
+
+        return jsonify({"success": True}), 200
+    except Exception as e:
+        return "{e}"
 
 
 
