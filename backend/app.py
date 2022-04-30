@@ -1,8 +1,5 @@
 import json
-#from msilib.schema import Class
 import os
-from pickle import FALSE, TRUE
-from unicodedata import name
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -116,6 +113,8 @@ class Skill(db.Model, SerializerMixin):
     job_postings = db.relationship('JobPosting', secondary=job_posting_skills,
                                    backref='skills', lazy=True)
 
+    def __repr__(self):
+            return str(self.id)
 
 class JobPosting(db.Model, SerializerMixin):
     serialize_only = ('id', 'position_name', 'job_company_id',
@@ -486,8 +485,12 @@ def jobPostingFilterByDetails():
         search_location = "%{}%".format(location.lower())
         postings = postings.filter(JobPosting.location.like(search_location))
  
-    # if skills is not None and len(skills) > 0:
-    #   postings = postings.join(Skill).filter(Skill.id.in_(set(skills)))
+    if skills is not None and len(skills) > 0:
+      skills_set = set([Skill.query.get(s) for s in skills])
+      print("skills_set", skills_set)
+      print("skills", set(skills))
+      # postings = postings.join(Skill).filter(Skill.id.in_(set(skills)))
+      postings = postings.filter(JobPosting.skills.any(Skill.id.in_(skills)))
 
     # if min_date is None or min_date != '':
     #   postings = postings.filter(JobPosting.date_created >= min_date)
