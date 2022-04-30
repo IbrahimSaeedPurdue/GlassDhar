@@ -499,6 +499,22 @@ def getSkills():
 
   return jsonify({'skills': skills}), 200
 
+@app.route('/skills/create')
+def createSkill():
+  data = request.json['data']
+  name = data.get('name')
+
+  newSkill = Skill(name)
+
+  db.session.add(newSkill)
+  db.session.commit()
+
+  return jsonify({"success": True}), 200
+
+# @app.route('skills/delete/<id>')
+# def deleteSkill():
+  
+#   return jsonify({"success": True}), 200
 
 
 if __name__ == '__main__':
