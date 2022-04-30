@@ -1,4 +1,5 @@
 import Input from '../components/Input.js';
+import { insertApplication } from '../api/api.js';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -13,7 +14,13 @@ const JobPosting = (props) => {
 
   const onSubmit = (data) => {
     //companyInsert(data);
+    applicationInsert(data.applicant_id, props.jobPosting.id);
     console.log(data)
+  };
+
+  const applicationInsert = async (applicant_id, job_posting_id) => {
+    await insertApplication(applicant_id, job_posting_id);
+    props.fetchJobPostings({});
   };
 
   return (
@@ -28,7 +35,7 @@ const JobPosting = (props) => {
       <p>date_created: {props.jobPosting.date_created}</p>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Input
-          name='applicantID'
+          name='applicant_id'
           type='text'
           label='Applicant ID'
           placeholder='Enter applicant id'
