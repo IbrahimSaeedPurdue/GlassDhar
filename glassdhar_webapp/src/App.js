@@ -6,6 +6,7 @@ import JobPostings from './pages/JobPostings.js';
 import CreateJobPosting from './pages/CreateJobPosting.js';
 
 
+import CompanyEditForm from './pages/CompanyEditForm.js';
 function App () {
   return (
     <div className='App'>

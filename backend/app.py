@@ -1,7 +1,5 @@
 import json
 import os
-from pickle import FALSE, TRUE
-from unicodedata import name
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -127,6 +125,8 @@ class Skill(db.Model, SerializerMixin):
     job_postings = db.relationship('JobPosting', secondary=job_posting_skills,
                                    backref='skills', lazy=True)
 
+    def __repr__(self):
+            return str(self.id)
 
 class JobPosting(db.Model, SerializerMixin):
     serialize_only = ('id', 'position_name', 'job_company_id',
@@ -212,7 +212,7 @@ def init_db():
     db.session.add(posting1)
     db.session.add(posting2)
 
-    posting1.applicants.append(a1)
+    #posting1.applicants.append(a1) -- commented out
     # print('44444444444444444')
 
     db.session.commit()
@@ -328,6 +328,35 @@ def insertApplicant():
 
 ### ----- COMPANY ROUTES ----- ###
 
+### ----- APPLICATION ROUTES ----- ###
+
+@app.route("/application/insert", methods=['POST'])
+def insertApplication():
+    try:
+        data = request.json['data']
+        job_posting_id = data['job_posting_id']
+        applicant_id = data['applicant_id']
+
+        if bool(JobPosting.query.filter_by(id=job_posting_id).first()) == False:  # Check if job posting exists
+            return "Job posting doesn't exists, Silly Goose!"
+
+        if bool(Applicant.query.filter_by(id=applicant_id).first()) == False:  # Check if applicant exists
+            return "Applicant doesn't exists, Silly Goose!"
+
+        jobposting = JobPosting.query.filter_by(id=job_posting_id).first()
+        applicant = Applicant.query.filter_by(id=applicant_id).first()
+        print(jobposting)
+        jobposting.applicants.append(applicant)
+        
+        db.session.commit()
+
+        return jsonify({"success": True}), 200
+    except Exception as e:
+        return f"{e}"
+
+
+
+### ----- COMPANY ROUTES ----- ###
 
 @app.route("/company/delete", methods=['POST'])
 def deleteCompany():
@@ -343,7 +372,7 @@ def deleteCompany():
 
         return jsonify({"success": True}), 200
     except Exception as e:
-        return "{e}"
+        return f"{e}"
 
 
 @app.route("/company/update", methods=['POST'])
@@ -425,7 +454,124 @@ def getCompanies():
     except Exception as e:
         return f"{e}"
 
-### JOB POSTING ROUTES ###
+
+
+### ----- APPLICANT ROUTES ----- ###
+
+@app.route("/applicant/update", methods=['POST'])
+def updateApplicant():
+  try:
+    data = request.json['data']
+
+    # do we need to update current_company_id, university_id???
+
+    email = data['email']
+    name = data['name']
+    gpa = data['gpa']
+    graduation_date = data['graduation_date']
+    resume_link = data['resume_link']
+    github_link = data['github_link']
+    portfolio_link = data['portfolio_link']
+
+    if bool(Applicant.query.filter_by(email=email).first()) == False: #Check if applicant exists
+      return "Applicant doesn't exists, Silly Goose!"
+
+    applicant = Applicant.query.filter_by(email=email)
+
+    applicant.update(dict(
+      email = email,
+      name = name,
+      gpa = gpa,
+      graduation_date = datetime.strptime(graduation_date, "%d/%m/%Y"),
+      resume_link = resume_link,
+      github_link = github_link,
+      portfolio_link = portfolio_link
+
+    ))
+    db.session.commit()
+
+    return jsonify({"success": True}), 200
+  except Exception as e:
+    return f"an error occurred {e}"
+
+@app.route("/applicant/insert", methods=['POST'])
+def insertApplicant():
+
+    try:
+        data = request.json['data']
+        email = data['email']
+        print(email)
+        if bool(Applicant.query.filter_by(email=email).first()):  # Check if applicant exists
+            return "Applicant already exists, Silly Goose!"
+
+        db.session.add(
+            Applicant(
+                email = data['email'],
+                name = data['name'],
+                gpa = data['gpa'],
+                graduation_date = datetime.strptime(data['graduation_date'], "%d/%m/%Y"),
+                resume_link = data['resume_link'],
+                github_link = data['github_link'],
+                portfolio_link = data['portfolio_link']
+            ))
+        db.session.commit()
+
+        return jsonify({"success": True}), 200
+    except Exception as e:
+        return "{e}"
+
+
+
+### ----- JOB POSTING ROUTES ----- ###
+
+@app.route("/jobposting/update", methods=['POST'])
+def updateJobPosting():
+  try:
+    data = request.json['data']
+
+    id = data["id"]
+    position_name = data['position_name']
+    job_company_id = data['job_company_id']
+    location = data['location']
+    salary = data['salary']
+    job_level = data['job_level']
+    job_description = data['job_description']
+
+    if bool(JobPosting.query.filter_by(id = id).first()) == False: #Check if company exists
+      return "Job posting doesn't exists, Silly Goose!"
+
+    jobposting = JobPosting.query.filter_by(id = id)
+
+    jobposting.update(dict(
+      position_name = position_name,
+      job_company_id = job_company_id,
+      location = location,
+      salary = salary,
+      job_level = job_level,
+      job_description = job_description,
+    ))
+    db.session.commit()
+
+    return jsonify({"success": True}), 200
+  except Exception as e:
+    return f"an error occurred {e}"
+
+@app.route("/jobposting/delete", methods=['POST'])
+def deleteJobPosting():
+  try:
+    data = request.json['data']
+    id = data['id']
+
+    if bool(JobPosting.query.filter_by(id=id).first()) == False: #Check if job posting exists
+      return "Job Posting doesn't exists, Silly Goose!"
+
+    JobPosting.query.filter_by(id=id).delete()
+    db.session.commit()
+
+    return jsonify({"success": True}), 200
+  except Exception as e:
+    return f"{e}"
+
 
 @app.route("/jobposting/insert", methods=['POST'])
 def insertJobPosting():
@@ -480,7 +626,11 @@ def jobPostingFilterByDetails():
         postings = postings.filter(JobPosting.location.like(search_location))
  
     if skills is not None and len(skills) > 0:
-      postings = postings.join(Skill).filter(Skill.id.in_(set(skills)))
+      skills_set = set([Skill.query.get(s) for s in skills])
+      print("skills_set", skills_set)
+      print("skills", set(skills))
+      # postings = postings.join(Skill).filter(Skill.id.in_(set(skills)))
+      postings = postings.filter(JobPosting.skills.any(Skill.id.in_(skills)))
 
     # if min_date is None or min_date != '':
     #   postings = postings.filter(JobPosting.date_created >= min_date)
@@ -488,7 +638,9 @@ def jobPostingFilterByDetails():
     postings = [p.to_dict() for p in postings]
     return jsonify({'job_postings': postings}), 200
 
-### SKILLS ROUTES ###
+
+
+### ----- SKILLS ROUTES ----- ###
 
 @app.route('/skills/all')
 def getSkills():
@@ -496,6 +648,8 @@ def getSkills():
   skills = [s.to_dict() for s in skills]
 
   return jsonify({'skills': skills}), 200
+
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=True)

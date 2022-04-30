@@ -113,7 +113,7 @@ const CompanyForm = (props) => {
       <div>
         {companies.length > 0
           ? companies.map((company, index) => (
-            <Company key={index} company={company} onCompanyDelete={companyDelete} />
+            <Company key={index} company={company} onCompanyDelete={companyDelete} fetchCompanies={fetchCompanies} />
             ))
           : 'no companies'}
       </div>
