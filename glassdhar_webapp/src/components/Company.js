@@ -1,4 +1,5 @@
 import React from 'react';
+import CompanyEditForm from '../pages/CompanyEditForm';
 
 const Company = (props) => {
   return (
@@ -12,7 +13,7 @@ const Company = (props) => {
       {props.onCompanyDelete
         ? <button onClick={() => { props.onCompanyDelete(props.company.company_id) ;}}>delete</button>
         : null}
-
+      <CompanyEditForm company={props.company} fetchCompanies={props.fetchCompanies}/> 
     </div>
   );
 };

@@ -3,51 +3,31 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 
-import { insertCompany, getCompanies, deleteCompany } from '../api/api.js';
+import {updateCompany} from '../api/api.js';
 import Input from '../components/Input.js';
 import Company from '../components/Company.js';
 
-const companyFormSchema = yup.object({
-  name: yup.string().max(80).required(),
-  companySite: yup.string().max(80).required(),
-  industry: yup.string().max(80).required(),
-  numOfEmp: yup.number().positive().required(),
-  description: yup.string().max(300)
-}).required();
-
-const CompanyForm = (props) => {
+const CompanyEditForm = (props) => {
   const { register, handleSubmit, formState: { errors } } = useForm({
-    resolver: yupResolver(companyFormSchema),
     defaultValues: {
-      name: '',
-      companySite: '',
-      industry: '',
-      numOfEmp: 0,
-      description: ''
+      companyId: props.company.company_id,
+      name: props.company.name,
+      companySite: props.company.company_site,
+      industry: props.company.industry,
+      numOfEmp: props.company.num_of_emp,
+      description: props.company.description
     }
   });
 
   const onSubmit = (data) => {
-    console.log(data);
+    companyUpdate(data);
+    //console.log(data);
   };
 
-  const [companies, setCompanies] = useState([]);
-
-  const fetchCompanies = async () => {
-    const companies = (await getCompanies()).data.companies;
-    // console.log(companies);
-    setCompanies(companies);
+  const companyUpdate = async (data) => {
+    await updateCompany(data);
+    props.fetchCompanies();
   };
-
-  const companyDelete = async (companyId) => {
-    await deleteCompany(companyId);
-    fetchCompanies();
-  };
-
-  useEffect(() => {
-    console.log('getting companies...');
-    fetchCompanies();
-  }, []);
 
   return (
     /* "handleSubmit" will validate your inputs before invoking "onSubmit" */
@@ -105,15 +85,8 @@ const CompanyForm = (props) => {
         <input type='submit' />
       </form>
       <hr />
-      <div>
-        {companies.length > 0
-          ? companies.map((company, index) => (
-            <Company key={index} company={company} onCompanyDelete={companyDelete} />
-            ))
-          : 'no companies'}
-      </div>
     </>
   );
 };
 
-export default CompanyForm;
+export default CompanyEditForm;
