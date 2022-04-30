@@ -319,7 +319,6 @@ def updateApplicant():
 
     # do we need to update current_company_id, university_id???
 
-    #id = data['id']
     email = data['email']
     name = data['name']
     gpa = data['gpa']
@@ -384,24 +383,25 @@ def updateJobPosting():
   try:
     data = request.json['data']
 
-    # job_level ADDD!
-
+    id = data["id"]
     position_name = data['position_name']
     job_company_id = data['job_company_id']
     location = data['location']
     salary = data['salary']
+    job_level = data['job_level']
     job_description = data['job_description']
 
-    if bool(JobPosting.query.filter_by(position_name=position_name, job_company_id=job_company_id).first()) == False: #Check if company exists
+    if bool(JobPosting.query.filter_by(id = id).first()) == False: #Check if company exists
       return "Job posting doesn't exists, Silly Goose!"
 
-    jobposting = JobPosting.query.filter_by(position_name=position_name)
+    jobposting = JobPosting.query.filter_by(id = id)
 
     jobposting.update(dict(
       position_name = position_name,
       job_company_id = job_company_id,
       location = location,
       salary = salary,
+      job_level = job_level,
       job_description = job_description,
     ))
     db.session.commit()
