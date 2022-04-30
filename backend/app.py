@@ -227,40 +227,19 @@ def init_db():
 def insertApplicant():
     try:
         data = request.json['data']
-        # companyName = data['name']
-        # print(companyName)
-        # if bool(Company.query.filter_by(name=companyName).first()):  # Check if company exists
-        #     return "Company already exists, Silly Goose!"
-
-        # db.session.add(
-        #     Applicant(
-        #       email =data["email"],
-        #       name=data["name"],
-        #       gpa=data["gpa"],
-        #       graduation_date= datetime.now(),
-        #       resume_link=data["resume_link"],
-        #       github_link=data["github_link"],
-        #       portfolio_link=data["portfolio_link"]
-        #     ))
-
 
         email =data["email"]
         name=data["name"]
-        # gpa=data["gpa"]
-        # graduation_date= datetime.now()
+        gpa=data["gpa"]
+        graduation_date = datetime.strptime(str(data["graduation_date"]), "%d/%m/%Y")
+
         resume_link=data["resume_link"]
-        # github_link=data["github_link"]
-        # portfolio_link=data["portfolio_link"]
-        insert_applicant_query = f'INSERT INTO Applicant(email, name, resume_link) VALUES({email}, {name}, {resume_link})'
+        github_link=data["github_link"]
+        portfolio_link=data["portfolio_link"]
+        valueDict = {"email": email, "name":name, "gpa":gpa, "resume_link": resume_link,"graduation_date":graduation_date, "github_link": github_link, "portfolio_link":portfolio_link}
+        insert_applicant_query = "INSERT INTO Applicant(email, name, gpa, graduation_date, resume_link, github_link, portfolio_link) VALUES(:email, :name, :gpa, :graduation_date, :resume_link, :github_link, :portfolio_link)"
 
-
-        db.session.execute(
-          '''
-          INSERT INTO Applicant(email, name, resume_link) VALUES(neel001, shmurda, www.mylittleresume.com)
-          '''
-        )
-
-        
+        db.session.execute(insert_applicant_query, valueDict)
         
         
         db.session.commit()
@@ -269,60 +248,7 @@ def insertApplicant():
     except Exception as e:
         return f"{e}"
 
-  # data = request.json['data']
-  # today = datetime.today()
 
-  # email =data["email"]
-  # name=data["name"]
-  # gpa=data["gpa"]
-  # graduation_date=data["graduation_date"]
-  # resume_link=data["resume_link"]
-  # github_link=data["github_link"]
-  # portfolio_link=data["portfolio_link"]
-  # current_company_id = 1234
-  # university_id = 3456
-
-
-
-  #insert_applicant_query = f'INSERT INTO Applicant (email, name, gpa, graduation_date, resume_link, github_link, portfolio_link, current_company_id, university_id) VALUES ({email}, {name}, {gpa}, {graduation_date}, {resume_link}, {github_link}, {portfolio_link}, {current_company_id}, {university_id})'
-
-  # db.session.execute(insert_applicant_query)
-
-  # try:
-  #   data = request.json['data']
-  #   today = datetime.today()
-    # db.session.add (
-    #   Applicant(
-    #     email="ibrahim.alassad001@gmail.com",
-    #     name="Ibrahim Saeed",
-    #     gpa=11.1,
-    #     graduation_date="1/1/2000",
-    #     resume_link="www.mylittleresume.com",
-    #     github_link="www.mylittlegithub.com",
-    #     portfolio_link="www.mylittleportfolio.com",
-    #     current_company_id =3456,
-    #     university_id = 1234
-    #     # passwordHash = db.Column(db.Integer)
-    #   )
-    # )
-  #   db.session.add(
-  #     Applicant(
-  #       email=data["email"],
-  #       name=data["name"],
-  #       gpa=data["gpa"],
-  #       graduation_date=data["graduation_date"],
-  #       resume_link=data["resume_link"],
-  #       github_link=data["github_link"],
-  #       portfolio_link=data["portfolio_link"],
-  #       current_company_id =3456,
-  #       university_id = 1234
-  #       # passwordHash = db.Column(db.Integer)
-  #   ))
-  #   db.session.commit()
-
-  #   return jsonify({"success": True}), 200
-  # except Exception as e:
-  #   return "user creation failed"
 
 
 
@@ -493,33 +419,6 @@ def updateApplicant():
     return jsonify({"success": True}), 200
   except Exception as e:
     return f"an error occurred {e}"
-
-@app.route("/applicant/insert", methods=['POST'])
-def insertApplicant():
-
-    try:
-        data = request.json['data']
-        email = data['email']
-        print(email)
-        if bool(Applicant.query.filter_by(email=email).first()):  # Check if applicant exists
-            return "Applicant already exists, Silly Goose!"
-
-        db.session.add(
-            Applicant(
-                email = data['email'],
-                name = data['name'],
-                gpa = data['gpa'],
-                graduation_date = datetime.strptime(data['graduation_date'], "%d/%m/%Y"),
-                resume_link = data['resume_link'],
-                github_link = data['github_link'],
-                portfolio_link = data['portfolio_link']
-            ))
-        db.session.commit()
-
-        return jsonify({"success": True}), 200
-    except Exception as e:
-        return "{e}"
-
 
 
 ### ----- JOB POSTING ROUTES ----- ###
