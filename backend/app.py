@@ -9,14 +9,28 @@ from sqlalchemy_serializer import SerializerMixin
 from datetime import datetime
 
 app = Flask(__name__)
-# it's sqlite rn, but will change later
+
+# GCP info
+# PASSWORD ="glassdhar"
+# PUBLIC_IP_ADDRESS ="34.132.185.188"
+# DBNAME ="db1"
+# PROJECT_ID ="igneous-etching-347822"
+# INSTANCE_NAME ="glassdhar"
+
+# sqlite connection
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///glassdhar.db'
+
+# MYSQL Connection
+app.config["SQLALCHEMY_DATABASE_URI"]= "mysql://root:root@localhost:3306/db1"
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
 
 db = SQLAlchemy(app)
 
 CORS(app)
+
+
 
 # Models
 
@@ -206,6 +220,7 @@ def init_db():
     db.session.commit()
 
     return "Database initalized successfully", 200
+
 
 ### ----- COMPANY ROUTES ----- ###
 
