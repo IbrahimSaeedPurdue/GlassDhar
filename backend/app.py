@@ -142,6 +142,7 @@ class JobPosting(db.Model, SerializerMixin):
     job_level = db.Column(db.String(100))
     job_description = db.Column(db.String(2000))
     date_created = db.Column(db.DateTime, nullable=False)
+    
 
 
 @app.route("/init-db", methods=['POST', 'GET'])
@@ -471,26 +472,31 @@ def deleteJobPosting():
   except Exception as e:
     return f"{e}"
 
-
+#be able to insert skills, array of skilll id, 
 @app.route("/jobposting/insert", methods=['POST'])
 def insertJobPosting():
   try:
     data = request.json['data']
     today = datetime.today()
+    skills = data["skills"]
+    posting = JobPosting(position_name = data['position_name'], location = data['location'],salary = data['salary'],job_level = data['job_level'],job_description = data['job_description'],date_created = today)
     db.session.add(
-      JobPosting(
-        position_name = data['position_name'],
-        location = data['location'],
-        salary = data['salary'],
-        job_level = data['job_level'],
-        job_description = data['job_description'],
-        date_created = today
-    ))
+      posting
+    )
+    currCompany = Company.query.get(data["company_id"])
+    currCompany.job_postings.append(posting)
+
+    print(currCompany)
+    skills_list = [Skill.query.get(id) for id in skills]
+
+    posting.skills.extend(tuple(skills_list))
+
+
     db.session.commit()
 
     return jsonify({"success": True}), 200
   except Exception as e:
-    return "job posting failed"
+    return f"{e}"
 
 @app.route("/job-postings/filter", methods=['POST'])
 def jobPostingFilterByDetails():
