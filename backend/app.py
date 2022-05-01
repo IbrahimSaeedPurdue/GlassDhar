@@ -377,18 +377,23 @@ def updateApplicant():
   except Exception as e:
     return f"an error occurred {e}"
 
+@app.route('/applicant/all')
+def getAllApplicants():
+  applicants = Applicant.query.all()
+  applicants = [a.to_dict() for a in applicants]
+  return jsonify({'applicants': applicants}), 200
+
 @app.route("/applicant/insert", methods=['POST'])
 def insertApplicant():
 
     try:
         data = request.json['data']
+        skills = data['skills']
         email = data['email']
         print(email)
         if bool(Applicant.query.filter_by(email=email).first()):  # Check if applicant exists
             return "Applicant already exists, Silly Goose!"
-
-        db.session.add(
-            Applicant(
+        app1 = Applicant(
                 email = data['email'],
                 name = data['name'],
                 gpa = data['gpa'],
@@ -396,12 +401,22 @@ def insertApplicant():
                 resume_link = data['resume_link'],
                 github_link = data['github_link'],
                 portfolio_link = data['portfolio_link']
-            ))
+            )
+        db.session.add(app1)
+        currUni = University.query.get(data["university_id"])
+        print(currUni)
+        print(data)
+        #app1 = Applicant.query.get(data["id"])
+        currUni.students.append(app1)
+        skills_list = [Skill.query.get(id) for id in skills]
+        app1.skills.extend(tuple(skills_list))
+        currentCompany = Company.query.get(data["current_company_id"])
+        currentCompany.employees.append(app1)
         db.session.commit()
 
         return jsonify({"success": True}), 200
     except Exception as e:
-        return "{e}"
+        return f"{e}"
 
 
 
@@ -466,6 +481,7 @@ def jobPostingFilterByDetails():
     job_level = data.get('job_level')
     min_date = data.get('min_date')
     skills = data.get('skills')
+
   
     if min_salary is None:
       min_salary = 0
@@ -540,6 +556,31 @@ def getApplicants(job_posting_id):
     job_posting = JobPosting.query.get(job_posting_id)
     applicant_list = [a.to_dict() for a in job_posting.applicants ]
     return jsonify({'applicants': applicant_list}), 200
+
+@app.route('/uni/create')
+def createUni():
+  data = request.json['data']
+  name = data.get('name')
+
+  newUni = University(name)
+
+  db.session.add(newUni)
+  db.session.commit()
+
+  return jsonify({"success": True}), 200
+
+@app.route('/uni/all')
+def getUniversities():
+    query = "SELECT * FROM university"
+    unis = db.session.execute(query)
+    uni_list = []
+
+    for s in unis:
+        lst = {'id': s[0], 'name': s[1]}
+        uni_list.append(lst)
+
+    #print(skill_list)
+    return jsonify({'universities': uni_list}), 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=True)
