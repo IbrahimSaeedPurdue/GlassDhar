@@ -6,22 +6,13 @@ import * as yup from 'yup';
 import Input from '../components/Input.js';
 import Company from '../components/Company.js';
 
-const companyFormSchema = yup.object({
-  name: yup.string().max(80).required(),
-  location: yup.string().max(80).required(),
-  salary: yup.string().max(80).required(),
-  level: yup.number().positive().required(),
-  description: yup.string().max(300)
-}).required();
-
 const JobPostingForm = (props) => {
   const { register, handleSubmit, formState: { errors } } = useForm({
-    resolver: yupResolver(companyFormSchema),
     defaultValues: {
       name: '',
-      companySite: '',
-      industry: '',
-      numOfEmp: 0,
+      location: '',
+      salary: '',
+      level: 0,
       description: ''
     }
   });
@@ -59,7 +50,7 @@ const JobPostingForm = (props) => {
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
 
-      <Input
+        <Input
           name='name'
           type='text'
           label='Postion Name'
