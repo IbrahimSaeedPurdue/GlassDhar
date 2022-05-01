@@ -229,6 +229,7 @@ def init_db():
 
 @app.route("/applicant/insert", methods=['POST'])
 def insertApplicant():
+    db.session.connection(execution_options={'isolation_level': 'SERIALIZABLE'})
     try:
         data = request.json['data']
 
@@ -262,6 +263,8 @@ def insertApplicant():
 
 @app.route("/application/insert", methods=['POST'])
 def insertApplication():
+    db.session.connection(execution_options={'isolation_level': 'SERIALIZABLE'})
+
     try:
         data = request.json['data']
         job_posting_id = data['job_posting_id']
@@ -290,6 +293,7 @@ def insertApplication():
 
 @app.route("/company/delete", methods=['POST'])
 def deleteCompany():
+    db.session.connection(execution_options={'isolation_level': 'SERIALIZABLE'})
     try:
         data = request.json['data']
         company_id = data['company_id']
@@ -307,6 +311,8 @@ def deleteCompany():
 
 @app.route("/company/update", methods=['POST'])
 def updateCompany():
+    db.session.connection(execution_options={'isolation_level': 'SERIALIZABLE'})
+
     try:
         data = request.json['data']
         company_id = data['company_id']
@@ -337,6 +343,7 @@ def updateCompany():
 
 @app.route("/company/insert", methods=['POST'])
 def insertCompany():
+    db.session.connection(execution_options={'isolation_level': 'SERIALIZABLE'})
 
     try:
         data = request.json['data']
@@ -362,8 +369,10 @@ def insertCompany():
 
 @app.route("/company/<company_id>")
 def getCompany(company_id):
+    db.session.connection(execution_options={'isolation_level': 'READ COMMITTED'})
+
     try:
-        # db.session.connection(execution_options={'isolation_level': 'SERIALIZABLE'})
+        db.session.connection(execution_options={'isolation_level': 'READ COMMITTED'})
         company = Company.query.get(company_id)
         if company is None:
           return f'company id ={company_id} does not exist', 404
@@ -376,6 +385,8 @@ def getCompany(company_id):
 
 @app.route("/company/all")
 def getCompanies():
+    db.session.connection(execution_options={'isolation_level': 'READ COMMITTED'})
+
     try:
         companies = Company.query.all()
         companies_dict = [c.to_dict() for c in companies]
@@ -390,6 +401,8 @@ def getCompanies():
 
 @app.route("/applicant/update", methods=['POST'])
 def updateApplicant():
+  db.session.connection(execution_options={'isolation_level': 'SERIALIZABLE'})
+
   try:
     data = request.json['data']
 
@@ -429,6 +442,8 @@ def updateApplicant():
 
 @app.route("/jobposting/update", methods=['POST'])
 def updateJobPosting():
+  db.session.connection(execution_options={'isolation_level': 'SERIALIZABLE'})
+
   try:
     data = request.json['data']
 
@@ -461,6 +476,8 @@ def updateJobPosting():
 
 @app.route("/jobposting/delete", methods=['POST'])
 def deleteJobPosting():
+  db.session.connection(execution_options={'isolation_level': 'SERIALIZABLE'})
+
   try:
     data = request.json['data']
     id = data['id']
@@ -478,6 +495,8 @@ def deleteJobPosting():
 #be able to insert skills, array of skilll id, 
 @app.route("/jobposting/insert", methods=['POST'])
 def insertJobPosting():
+  db.session.connection(execution_options={'isolation_level': 'SERIALIZABLE'})
+
   try:
     data = request.json['data']
     today = datetime.today()
@@ -503,6 +522,8 @@ def insertJobPosting():
 
 @app.route("/job-postings/filter", methods=['POST'])
 def jobPostingFilterByDetails():
+    db.session.connection(execution_options={'isolation_level': 'READ COMMITTED'})
+
     data = request.json['data']
     name = data.get('name')
     min_salary = data.get('min_salary')
@@ -543,7 +564,17 @@ def jobPostingFilterByDetails():
     # if min_date is None or min_date != '':
     #   postings = postings.filter(JobPosting.date_created >= min_date)
     
-    postings = [p.to_dict() for p in postings]
+    # postings = [p.to_dict() for p in postings]
+
+    posting_list = [p.to_dict() for p in postings]
+    #print(postings)
+    # list of dictionaries 
+
+    for index in range(len(posting_list)):
+        posting_list[index]["skills"] = posting_list[index].skills
+
+    postings = posting_list
+
     return jsonify({'job_postings': postings}), 200
 
 
@@ -552,6 +583,8 @@ def jobPostingFilterByDetails():
 
 @app.route('/skills/all')
 def getSkills():
+  db.session.connection(execution_options={'isolation_level': 'READ COMMITTED'})
+
   skills = Skill.query.all()
   skills = [s.to_dict() for s in skills]
 
@@ -576,6 +609,8 @@ def createSkill():
 
 @app.route('/job-postings/applicants/<job_posting_id>') 
 def getApplicants(job_posting_id):
+    db.session.connection(execution_options={'isolation_level': 'READ COMMITTED'})
+
     job_posting = JobPosting.query.get(job_posting_id)
     applicant_list = [a.to_dict() for a in job_posting.applicants ]
     return jsonify({'applicants': applicant_list}), 200
