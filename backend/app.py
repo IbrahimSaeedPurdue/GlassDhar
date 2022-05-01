@@ -1,4 +1,5 @@
 import json
+from operator import index
 import os
 
 from flask import Flask, request, jsonify
@@ -63,7 +64,7 @@ class Company(db.Model, SerializerMixin):
                       'industry', 'num_of_emp', 'description')
     serialize_rules = ('-employees', '-job_postings')
 
-    company_id = db.Column(db.Integer, primary_key=True)
+    company_id = db.Column(db.Integer, primary_key=True, index=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
     company_site = db.Column(db.String(80))
     industry = db.Column(db.String(80), nullable=False)
@@ -78,7 +79,7 @@ class Applicant(db.Model, SerializerMixin):
     serialize_only = ('id', 'email', 'name',
                       'gpa', 'graduation_date', 'resume_link', 'github_link', 'portfolio_link')
     serialize_rules = ('-jobs_applications', '-university_id', '-current_company_id')
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, index=True)
     email = db.Column(db.String(80), unique=True)
     name = db.Column(db.String(80), nullable=False)
     gpa = db.Column(db.Float)
@@ -97,7 +98,7 @@ class Applicant(db.Model, SerializerMixin):
 
 
 class University(db.Model, SerializerMixin):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, index=True)
     name = db.Column(db.String(300), nullable=False)
 
     students = db.relationship("Applicant", backref='university', lazy=True)
@@ -108,7 +109,7 @@ class Skill(db.Model, SerializerMixin):
     serialize_only = ('id', 'name')
     serialize_rules = ('-applicants', '-job_postings')
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, index=True)
     name = db.Column(db.String(300), unique=True, nullable=False)
 
     applicants = db.relationship(
@@ -124,13 +125,13 @@ class JobPosting(db.Model, SerializerMixin):
                       'location', 'salary', 'job_level', 'job_description', 'date_created')
     serialize_rules = ()
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, index=True)
     position_name = db.Column(db.String(300))
     job_company_id = db.Column(db.Integer, db.ForeignKey(
-        'company.company_id'))
-    location = db.Column(db.String(300))
-    salary = db.Column(db.Integer)
-    job_level = db.Column(db.String(100))
+        'company.company_id'), index=True)
+    location = db.Column(db.String(300), index=True)
+    salary = db.Column(db.Integer, index=True)
+    job_level = db.Column(db.String(100), index=True)
     job_description = db.Column(db.String(2000))
     date_created = db.Column(db.DateTime, nullable=False)
 
