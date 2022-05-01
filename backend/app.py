@@ -75,6 +75,9 @@ class Company(db.Model, SerializerMixin):
 
 
 class Applicant(db.Model, SerializerMixin):
+    serialize_only = ('id', 'email', 'name',
+                      'gpa', 'graduation_date', 'resume_link', 'github_link', 'portfolio_link')
+    serialize_rules = ('-jobs_applications', '-university_id', '-current_company_id')
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(80), unique=True)
     name = db.Column(db.String(80), nullable=False)
@@ -200,12 +203,39 @@ def init_db():
     db.session.add(posting1)
     db.session.add(posting2)
 
-    posting1.applicants.append(a1)
+    #posting1.applicants.append(a1) -- commented out
     # print('44444444444444444')
 
     db.session.commit()
 
     return "Database initalized successfully", 200
+
+
+### ----- APPLICATION ROUTES ----- ###
+
+@app.route("/application/insert", methods=['POST'])
+def insertApplication():
+    try:
+        data = request.json['data']
+        job_posting_id = data['job_posting_id']
+        applicant_id = data['applicant_id']
+
+        if bool(JobPosting.query.filter_by(id=job_posting_id).first()) == False:  # Check if job posting exists
+            return "Job posting doesn't exists, Silly Goose!"
+
+        if bool(Applicant.query.filter_by(id=applicant_id).first()) == False:  # Check if applicant exists
+            return "Applicant doesn't exists, Silly Goose!"
+
+        jobposting = JobPosting.query.filter_by(id=job_posting_id).first()
+        applicant = Applicant.query.filter_by(id=applicant_id).first()
+        print(jobposting)
+        jobposting.applicants.append(applicant)
+        
+        db.session.commit()
+
+        return jsonify({"success": True}), 200
+    except Exception as e:
+        return f"{e}"
 
 
 
@@ -225,7 +255,7 @@ def deleteCompany():
 
         return jsonify({"success": True}), 200
     except Exception as e:
-        return "{e}"
+        return f"{e}"
 
 
 @app.route("/company/update", methods=['POST'])
@@ -424,23 +454,6 @@ def deleteJobPosting():
     return jsonify({"success": True}), 200
   except Exception as e:
     return f"{e}"
-   
-
-
-# def deleteCompany():
-#     try:
-#         data = request.json['data']
-#         company_id = data['company_id']
-
-#         if bool(Company.query.filter_by(company_id=company_id).first()) == False:  # Check if company exists
-#             return "Company doesn't exists, Silly Goose!"
-
-#         Company.query.filter_by(company_id=company_id).delete()
-#         db.session.commit()
-
-#         return jsonify({"success": True}), 200
-#     except Exception as e:
-#         return "{e}"
 
 
 @app.route("/job-postings/filter", methods=['POST'])
@@ -516,6 +529,11 @@ def createSkill():
   
 #   return jsonify({"success": True}), 200
 
+@app.route('/job-postings/applicants/<job_posting_id>') 
+def getApplicants(job_posting_id):
+    job_posting = JobPosting.query.get(job_posting_id)
+    applicant_list = [a.to_dict() for a in job_posting.applicants ]
+    return jsonify({'applicants': applicant_list}), 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=True)

@@ -104,7 +104,7 @@ const JobPostings = () => {
       <h4>Job Postings: </h4>
       <div />
       {postings.length > 0
-        ? postings.map(posting => <JobPosting key={posting.id} jobPosting={posting} />)
+        ? postings.map(posting => <JobPosting key={posting.id} jobPosting={posting} fetchJobPostings={fetchJobPostings} />)
         : <p>;-;)/ No job postings </p>}
 
     </>
