@@ -466,6 +466,8 @@ def jobPostingFilterByDetails():
     job_level = data.get('job_level')
     min_date = data.get('min_date')
     skills = data.get('skills')
+
+    # skills to job posting
   
     if min_salary is None:
       min_salary = 0
@@ -498,7 +500,14 @@ def jobPostingFilterByDetails():
     # if min_date is None or min_date != '':
     #   postings = postings.filter(JobPosting.date_created >= min_date)
     
-    postings = [p.to_dict() for p in postings]
+    posting_list = [p.to_dict() for p in postings]
+
+    for index in range(len(posting_list)):
+        posting_list[index]["skills"] = [p_skill.to_dict() for p_skill in postings[index].skills]
+        print(posting_list[index])
+
+    postings = posting_list
+
     return jsonify({'job_postings': postings}), 200
 
 
