@@ -629,7 +629,7 @@ def jobPostingFilterByDetails():
     for index in range(len(posting_list)):
         posting_list[index]["skills"] = [p_skill.to_dict() for p_skill in postings[index].skills]
         posting_list[index]["applicants"] = [a.to_dict() for a in postings[index].applicants]
-
+        posting_list[index]["company_name"] = Company.query.get(postings[index].job_company_id).name
 
         for j in range(len(posting_list[index]["applicants"])):
           posting_list[index]["applicants"][j]["skills"] = [s.to_dict() for s in postings[index].applicants[j].skills]
