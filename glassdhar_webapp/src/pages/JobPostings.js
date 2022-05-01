@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
+import React, { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
 
-import Input from "../components/Input.js";
-import SkillsDropdown from "../components/SkillsDropdown.js";
-import CompanyDropdown from "../components/CompanyDropdown.js";
-import JobPosting from "../components/JobPosting.js";
-import { jobPostingFilterByDetails } from "../api/api.js";
-import CreateJobPosting from "../pages/CreateJobPosting";
+import Input from '../components/Input.js';
+import SkillsDropdown from '../components/SkillsDropdown.js';
+import CompanyDropdown from '../components/CompanyDropdown.js';
+import JobPosting from '../components/JobPosting.js';
+import { jobPostingFilterByDetails } from '../api/api.js';
+import CreateJobPosting from '../pages/CreateJobPosting';
 
 const companyFormSchema = yup
   .object({
@@ -16,7 +16,7 @@ const companyFormSchema = yup
     companyId: yup.number(),
     minSalary: yup.number(),
     location: yup.string().max(300),
-    jobLevel: yup.string().max(100),
+    jobLevel: yup.string().max(100)
   })
   .required();
 
@@ -24,17 +24,17 @@ const JobPostings = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors }
   } = useForm({
     resolver: yupResolver(companyFormSchema),
     defaultValues: {
-      name: "",
+      name: '',
       companyId: -1,
-      location: "",
-      jobLevel: "",
+      location: '',
+      jobLevel: '',
       minSalary: 0,
-      skills: [],
-    },
+      skills: []
+    }
   });
 
   const onSubmit = (data) => {
@@ -55,53 +55,66 @@ const JobPostings = () => {
     setPostings(postings);
   };
 
+  const [showCreate, setShowCreate] = useState(false);
+  const toggleShowCreate = () => {
+    setShowCreate((showCreate) => !showCreate);
+  };
+
   return (
     /* "handleSubmit" will validate your inputs before invoking "onSubmit" */
     /* Input.js component handles any formating for you... if you want to change style ... change it in Input.js */
     <>
-      <CreateJobPosting fetchJobPostings={fetchJobPostings} />
+      <h2>Job Postings</h2>
+      <button type='button' onClick={toggleShowCreate}>
+        Toggle Create Form
+      </button>
+      {showCreate
+        ? <CreateJobPosting fetchJobPostings={fetchJobPostings} />
+        : null}
+
       <form onSubmit={handleSubmit(onSubmit)}>
+        <h3>Filtering Menu:</h3>
         <Input
-          name="name"
-          type="text"
-          label="Job Title"
-          placeholder="filter by job title"
+          name='name'
+          type='text'
+          label='Job Title'
+          placeholder='filter by job title'
           errors={errors}
           register={register}
         />
 
-        <CompanyDropdown name="companyId" register={register} />
+        <CompanyDropdown name='companyId' register={register} />
 
         <Input
-          name="location"
-          type="text"
-          label="Job Location"
-          placeholder="filter by location"
-          errors={errors}
-          register={register}
-        />
-
-        <Input
-          name="jobLevel"
-          type="text"
-          label="Job Level"
-          placeholder="filter by job level"
+          name='location'
+          type='text'
+          label='Job Location'
+          placeholder='filter by location'
           errors={errors}
           register={register}
         />
 
         <Input
-          name="minSalary"
-          type="text"
-          label="Minimum Salary"
-          placeholder="filter by minSalary"
+          name='jobLevel'
+          type='text'
+          label='Job Level'
+          placeholder='filter by job level'
           errors={errors}
           register={register}
         />
 
-        <SkillsDropdown name="skills" register={register} />
+        <Input
+          name='minSalary'
+          type='text'
+          label='Minimum Salary'
+          placeholder='filter by minSalary'
+          errors={errors}
+          register={register}
+        />
 
-        <input type="submit" />
+        <SkillsDropdown name='skills' register={register} />
+
+        <input type='submit' />
       </form>
       <hr />
       <h4>Job Postings: </h4>

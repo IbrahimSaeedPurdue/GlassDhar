@@ -58,6 +58,7 @@ const CompanyForm = (props) => {
     /* "handleSubmit" will validate your inputs before invoking "onSubmit" */
     /* Input.js component handles any formating for you... if you want to change style ... change it in Input.js */
     <>
+      <h1>Company</h1>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Input
           name='name'

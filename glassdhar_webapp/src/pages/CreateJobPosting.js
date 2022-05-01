@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
+import React, { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
 
-import Input from "../components/Input.js";
-import SkillsDropdown from "../components/SkillsDropdown";
-import { insertJobPosting } from "../api/api.js";
+import Input from '../components/Input.js';
+import SkillsDropdown from '../components/SkillsDropdown';
+import { insertJobPosting } from '../api/api.js';
+import CompanyDropdown from '../components/CompanyDropdown.js';
 
 const createJobPostingFormSchema = yup
   .object({
@@ -15,7 +16,7 @@ const createJobPostingFormSchema = yup
     salary: yup.number(),
     jobLevel: yup.string().max(100),
     jobDescription: yup.string().max(1000),
-    skills: yup.array(),
+    skills: yup.array()
   })
   .required();
 
@@ -23,18 +24,18 @@ const CreateJobPosting = (props) => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors }
   } = useForm({
     resolver: yupResolver(createJobPostingFormSchema),
     defaultValues: {
-      positionName: "",
+      positionName: '',
       companyId: 0,
-      location: "",
+      location: '',
       salary: 0,
-      jobLevel: "",
-      jobDescription: "",
-      skills: [],
-    },
+      jobLevel: '',
+      jobDescription: '',
+      skills: []
+    }
   });
 
   const onSubmit = (data) => {
@@ -54,60 +55,52 @@ const CreateJobPosting = (props) => {
         <h3>Create job posting form</h3>
 
         <Input
-          name="positionName"
-          type="text"
-          label="Postion Name"
-          placeholder="Enter position name"
+          name='positionName'
+          type='text'
+          label='Postion Name'
+          placeholder='Enter position name'
           required
           errors={errors}
           register={register}
         />
+        <CompanyDropdown name='companyId' register={register} />
+
         <Input
-          name="companyId"
-          type="number"
-          label="Company Id"
-          placeholder="Enter company id"
-          required
+          name='location'
+          type='text'
+          label='Job Location'
+          placeholder='Enter job location'
+          errors={errors}
+          register={register}
+        />
+        <Input
+          name='salary'
+          type='number'
+          label='Job Salary (Annual)'
+          placeholder='Enter position salary'
+          errors={errors}
+          register={register}
+        />
+        <Input
+          name='jobLevel'
+          type='text'
+          label='Job Level'
+          placeholder='Enter job level'
+          errors={errors}
+          register={register}
+        />
+        <Input
+          name='jobDescription'
+          type='text'
+          label='Job Description'
+          placeholder='Enter job description'
           errors={errors}
           register={register}
         />
 
-        <Input
-          name="location"
-          type="text"
-          label="Job Location"
-          placeholder="Enter job location"
-          errors={errors}
-          register={register}
-        />
-        <Input
-          name="salary"
-          type="number"
-          label="Job Salary (Annual)"
-          placeholder="Enter position salary"
-          errors={errors}
-          register={register}
-        />
-        <Input
-          name="jobLevel"
-          type="text"
-          label="Job Level"
-          placeholder="Enter job level"
-          errors={errors}
-          register={register}
-        />
-        <Input
-          name="jobDescription"
-          type="text"
-          label="Job Description"
-          placeholder="Enter job description"
-          errors={errors}
-          register={register}
-        />
+        <SkillsDropdown name='skills' register={register} />
 
-        <SkillsDropdown name="skills" register={register} />
-
-        <input type="submit" />
+        <input type='submit' />
       </form>
       <hr />
     </>

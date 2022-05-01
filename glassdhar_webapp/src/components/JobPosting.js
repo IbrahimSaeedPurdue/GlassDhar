@@ -24,29 +24,52 @@ const JobPosting = (props) => {
     props.fetchJobPostings({});
   };
 
+  const [showApplicants, setShowApplicants] = useState(false);
+  const toggleShowApplicants = () => {
+    setShowApplicants(prevShow => !prevShow);
+  };
+
   return (
-    <div>
-      <p>id: {props.jobPosting.id}</p>
-      <p>job_company_id: {props.jobPosting.job_company_id}</p>
-      <p>position_name: {props.jobPosting.position_name}</p>
-      <p>location: {props.jobPosting.location}</p>
-      <p>salary: {props.jobPosting.salary}</p>
-      <p>job_level: {props.jobPosting.job_level}</p>
-      <p>job_description: {props.jobPosting.job_description}</p>
-      <p>date_created: {props.jobPosting.date_created}</p>
-      <p>Skills: {props.jobPosting.skills.map(skill => (skill.name + ', '))}</p>
+    <div style={{
+      border: 'solid 1px black',
+      borderRadius: '8px',
+      padding: '10px',
+      marginBottom: '15px'
+    }}
+    >
+      <div style={{ display: 'flex' }}>
+        <h3 style={{ marginBottom: '7px', margin: 'auto', textTransform: 'capitalize' }}>
+          {props.jobPosting.company_name} - {props.jobPosting.position_name}
+        </h3>
+      </div>
+
+      <div style={{ display: 'flex' }}>
+        <div style={{ flex: 1 }}>
+          <p>id: {props.jobPosting.id}</p>
+          <p>job_company_id: {props.jobPosting.job_company_id}</p>
+          <p>job_company_name: {props.jobPosting.company_name}</p>
+          <p>position_name: {props.jobPosting.position_name}</p>
+          <p>location: {props.jobPosting.location}</p>
+          <p>salary: {props.jobPosting.salary}</p>
+        </div>
+        <div style={{ flex: 1 }}>
+          <p>job_level: {props.jobPosting.job_level}</p>
+          <p>job_description: {props.jobPosting.job_description}</p>
+          <p>date_created: {props.jobPosting.date_created}</p>
+          <p>Skills: {props.jobPosting.skills.map(skill => (skill.name + ', '))}</p>
+        </div>
+      </div>
 
       <p>Applicants for this job postings:</p>
       <div>
-        {props.jobPosting.applicants.map(applicant => {
-          return (
-            <>
-              <hr />
-              <Applicant applicant={applicant} />
-              <hr />
-            </>
-          );
-        })}
+        <button type='button' onClick={toggleShowApplicants}>Toggle Applicants</button>
+        {showApplicants
+          ? props.jobPosting.applicants.map(applicant => {
+              return (
+                <Applicant key={applicant.id} applicant={applicant} />
+              );
+            })
+          : null}
       </div>
       {/* {postingApplicants.length > 0
         ? postingApplicants.map(app => <Applicant key={app.id} applicant={app} noEdit />)
