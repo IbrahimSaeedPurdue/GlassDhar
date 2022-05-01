@@ -1,115 +1,117 @@
-import React, { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
+import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 
-import Input from '../components/Input.js';
-import Company from '../components/Company.js';
+import Input from "../components/Input.js";
+import SkillsDropdown from "../components/SkillsDropdown";
+import { insertJobPosting } from "../api/api.js";
 
-const JobPostingForm = (props) => {
-  const { register, handleSubmit, formState: { errors } } = useForm({
+const createJobPostingFormSchema = yup
+  .object({
+    positionName: yup.string().max(300).required(),
+    companyId: yup.number().required(),
+    location: yup.string().max(300),
+    salary: yup.number(),
+    jobLevel: yup.string().max(100),
+    jobDescription: yup.string().max(1000),
+    skills: yup.array(),
+  })
+  .required();
+
+const CreateJobPosting = (props) => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(createJobPostingFormSchema),
     defaultValues: {
-      name: '',
-      location: '',
-      salary: '',
-      level: 0,
-      description: ''
-    }
+      positionName: "",
+      companyId: 0,
+      location: "",
+      salary: 0,
+      jobLevel: "",
+      jobDescription: "",
+      skills: [],
+    },
   });
 
   const onSubmit = (data) => {
-    //companyInsert(data);
+    jobPostingInsert(data);
   };
 
-  const [companies, setCompanies] = useState([]);
-
-//   const fetchCompanies = async () => {
-//     const companies = (await getCompanies()).data.companies;
-//     // console.log(companies);
-//     setCompanies(companies);
-//   };
-
-//   const jobPostingInsert = async (company) => {
-//     await insertJobPosting(company);
-//     fetchCompanies();
-//   };
-
-//   const postingDelete = async (companyId) => {
-//     await deletePosting(companyId);
-//     fetchCompanies();
-//   };
-
-  useEffect(() => {
-    console.log('getting postings...');
-    fetchPostings();
-  }, []);
+  const jobPostingInsert = async (data) => {
+    await insertJobPosting(data);
+    props.fetchJobPostings({});
+  };
 
   return (
     /* "handleSubmit" will validate your inputs before invoking "onSubmit" */
     /* Input.js component handles any formating for you... if you want to change style ... change it in Input.js */
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
+        <h3>Create job posting form</h3>
 
         <Input
-          name='name'
-          type='text'
-          label='Postion Name'
-          placeholder='Enter position name'
+          name="positionName"
+          type="text"
+          label="Postion Name"
+          placeholder="Enter position name"
           required
           errors={errors}
           register={register}
         />
         <Input
-          name='location'
-          type='text'
-          label='Company Location'
-          placeholder='Enter job location'
-          required
-          errors={errors}
-          register={register}
-        />
-        <Input
-          name='salary'
-          type='number'
-          label='Company Salary'
-          placeholder='Enter position salary'
-          required
-          errors={errors}
-          register={register}
-        />
-        <Input
-          name='level'
-          type='text'
-          label='Position Name'
-          placeholder='Enter position level'
-          required
-          errors={errors}
-          register={register}
-        />
-        <Input
-          name='description'
-          type='text'
-          label='Job Description'
-          placeholder='Enter job description'
+          name="companyId"
+          type="number"
+          label="Company Id"
+          placeholder="Enter company id"
           required
           errors={errors}
           register={register}
         />
 
+        <Input
+          name="location"
+          type="text"
+          label="Job Location"
+          placeholder="Enter job location"
+          errors={errors}
+          register={register}
+        />
+        <Input
+          name="salary"
+          type="number"
+          label="Job Salary (Annual)"
+          placeholder="Enter position salary"
+          errors={errors}
+          register={register}
+        />
+        <Input
+          name="jobLevel"
+          type="text"
+          label="Job Level"
+          placeholder="Enter job level"
+          errors={errors}
+          register={register}
+        />
+        <Input
+          name="jobDescription"
+          type="text"
+          label="Job Description"
+          placeholder="Enter job description"
+          errors={errors}
+          register={register}
+        />
 
+        <SkillsDropdown name="skills" register={register} />
 
-        <input type='submit' />
+        <input type="submit" />
       </form>
       <hr />
-      <div>
-        {companies.length > 0
-          ? companies.map((company, index) => (
-            <Company key={index} company={company} onCompanyDelete={companyDelete} />
-            ))
-          : 'no companies'}
-      </div>
     </>
   );
 };
 
-export default JobPostingForm;
+export default CreateJobPosting;

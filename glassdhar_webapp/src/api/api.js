@@ -52,6 +52,20 @@ export const jobPostingFilterByDetails = ({ name, companyId, location, jobLevel,
   });
 };
 
+export const insertJobPosting = ({ positionName, companyId, location, salary, jobLevel, jobDescription, skills }) => {
+  return flaskApp.post('/jobposting/insert', {
+    data: {
+      position_name: positionName,
+      company_id: companyId,
+      location: location,
+      salary: salary,
+      job_level: jobLevel,
+      job_description: jobDescription,
+      skills: skills
+    }
+  });
+};
+
 export const insertApplication = ( applicant_id, job_posting_id ) => {
   return flaskApp.post('/application/insert', {
     data: {
