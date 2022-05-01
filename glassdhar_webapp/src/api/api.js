@@ -37,6 +37,28 @@ export const deleteCompany = (companyId) => {
     }
   });
 };
+// ------- Applicants -------
+export const insertApplicant = ({ name, email, gpa, graduationDate, resumeLink, githubLink, portfolioLink, companyId, universityId, skills }) => {
+  let gradDate = new Date(graduationDate)
+  let grad_date = gradDate.getDate() + "/" + (gradDate.getMonth() + 1) + "/" + gradDate.getFullYear() 
+  return flaskApp.post('applicant/insert', {
+    data: {
+      name: name,
+      email: email,
+      gpa: gpa,
+      graduation_date: grad_date,
+      resume_link: resumeLink,
+      github_link: githubLink,
+      portfolio_link: portfolioLink,
+      current_company_id: companyId,
+      skills: skills,
+      university_id: universityId
+    }
+  });
+};
+
+export const getApplicants = () => {
+  return flaskApp.get('/applicant/all')};
 
 // ------- JOB POSTINGS -------
 export const jobPostingFilterByDetails = ({ name, companyId, location, jobLevel, minSalary, skills }) => {
@@ -65,4 +87,9 @@ export const insertApplication = ( applicant_id, job_posting_id ) => {
 // ------- SKILLS -------
 export const getSkills = () => {
   return flaskApp.get('/skills/all');
+};
+
+// ------- UNIVERSITIES -------
+export const getUniversities = () => {
+  return flaskApp.get('/uni/all');
 };
