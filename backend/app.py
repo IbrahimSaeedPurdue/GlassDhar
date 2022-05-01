@@ -507,10 +507,16 @@ def jobPostingFilterByDetails():
 
 @app.route('/skills/all')
 def getSkills():
-  skills = Skill.query.all()
-  skills = [s.to_dict() for s in skills]
-
-  return jsonify({'skills': skills}), 200
+    query = "SELECT * FROM skill"
+    skills = db.session.execute(query)
+    skill_list = []
+    # skills = Skill.query.all()
+    for s in skills:
+        lst = {'id': s[0], 'name': s[1]}
+        skill_list.append(lst)
+        
+    #print(skill_list)
+    return jsonify({'skills': skill_list}), 200
 
 
 @app.route('/job-postings/applicants/<job_posting_id>') 
