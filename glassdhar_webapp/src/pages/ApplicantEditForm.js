@@ -3,55 +3,31 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 
-import { insertApplicant, getApplicants } from '../api/api.js';
+import { updateApplicant } from '../api/api.js';
 import Input from '../components/Input.js';
-import UniversityDropdown from '../components/UniversityDropdown.js';
-import CompanyDropdown from '../components/CompanyDropdown.js';
-import Applicant from '../components/Applicant.js';
-import SkillsDropdown from '../components/SkillsDropdown';
 
-const ApplicantForm = (props) => {
+const ApplicantEditForm = (props) => {
   const { register, handleSubmit, formState: { errors } } = useForm({
     defaultValues: {
-      name: '',
-      email: '',
-      gpa: 0.0,
-      graduationDate: 0,
-      resumeLink: '',
-      githubLink: '',
-      portfolioLink: '',
-      companyId: 0,
-      universityId: 0,
-      skills: []
+      name: props.applicant.name,
+      email: props.applicant.email,
+      gpa: props.applicant.gpa,
+      graduationDate: props.applicant.graduation_date,
+      resumeLink: props.applicant.resume_link,
+      githubLink: props.applicant.github_link,
+      portfolioLink: props.applicant.portfolio_link
     }
   });
 
   const onSubmit = (data) => {
-    applicantInsert(data);
+    applicantUpdate(data);
+    // console.log(data);
   };
 
-  const [applicants, setApplicants] = useState([]);
-
-  const fetchApplicants = async () => {
-    const companies = (await getApplicants({})).data.applicants;
-    // console.log(companies);
-    setApplicants(companies);
+  const applicantUpdate = async (data) => {
+    await updateApplicant(data);
+    props.fetchApplicants();
   };
-
-  const applicantInsert = async (company) => {
-    await insertApplicant(company);
-    fetchApplicants();
-  };
-
-  // const companyDelete = async (companyId) => {
-  //   await deleteCompany(companyId);
-  //   fetchCompanies();
-  // };
-
-  useEffect(() => {
-    console.log('getting applicants...');
-    fetchApplicants();
-  }, []);
   return (
     /* "handleSubmit" will validate your inputs before invoking "onSubmit" */
     /* Input.js component handles any formating for you... if you want to change style ... change it in Input.js */
@@ -80,7 +56,6 @@ const ApplicantForm = (props) => {
         <Input
           name='gpa'
           type='number'
-          step='0.1'
           label='gpa'
           placeholder='Enter industry'
           required
@@ -97,7 +72,6 @@ const ApplicantForm = (props) => {
           errors={errors}
           register={register}
         />
-
         <Input
           name='resumeLink'
           type='text'
@@ -123,33 +97,11 @@ const ApplicantForm = (props) => {
           errors={errors}
           register={register}
         />
-
-        <CompanyDropdown
-          name='companyId'
-          register={register}
-        />
-
-        <UniversityDropdown
-          name='universityId'
-          register={register}
-        />
-
-        <SkillsDropdown
-          name='skills'
-          register={register}
-        />
         <input type='submit' />
       </form>
       <hr />
-      <div>
-        {applicants.length > 0
-          ? applicants.map((applicant, index) => (
-            <Applicant key={index} applicant={applicant} fetchApplicants={fetchApplicants} />
-            ))
-          : 'no applicants'}
-      </div>
     </>
   );
 };
 
-export default ApplicantForm;
+export default ApplicantEditForm;

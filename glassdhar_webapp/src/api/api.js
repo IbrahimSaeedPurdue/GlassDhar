@@ -57,6 +57,23 @@ export const insertApplicant = ({ name, email, gpa, graduationDate, resumeLink, 
   });
 };
 
+export const updateApplicant = ({ name, email, gpa, graduationDate, resumeLink, githubLink, portfolioLink, companyId, universityId, skills }) => {
+  const gradDate = new Date(graduationDate);
+  const grad_date = gradDate.getDate() + '/' + (gradDate.getMonth() + 1) + '/' + gradDate.getFullYear();
+
+  return flaskApp.post('applicant/update', {
+    data: {
+      name: name,
+      email: email,
+      gpa: gpa,
+      graduation_date: grad_date,
+      resume_link: resumeLink,
+      github_link: githubLink,
+      portfolio_link: portfolioLink
+    }
+  });
+};
+
 export const getApplicants = () => {
   return flaskApp.get('/applicant/all')};
 
