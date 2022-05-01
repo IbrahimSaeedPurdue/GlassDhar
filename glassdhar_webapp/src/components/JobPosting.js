@@ -13,9 +13,9 @@ const JobPosting = (props) => {
   });
 
   const onSubmit = (data) => {
-    //companyInsert(data);
+    // companyInsert(data);
     applicationInsert(data.applicant_id, props.jobPosting.id);
-    console.log(data)
+    console.log(data);
   };
 
   const applicationInsert = async (applicant_id, job_posting_id) => {
@@ -33,6 +33,7 @@ const JobPosting = (props) => {
       <p>job_level: {props.jobPosting.job_level}</p>
       <p>job_description: {props.jobPosting.job_description}</p>
       <p>date_created: {props.jobPosting.date_created}</p>
+      <p>Skills: {props.jobPosting.skills.map(skill => (skill.name + ', '))}</p>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Input
           name='applicant_id'

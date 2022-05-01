@@ -12,6 +12,7 @@ const Applicant = (props) => {
       <p>resume_link: {props.applicant.resume_link}</p>
       <p>github_link: {props.applicant.github_link}</p>
       <p>portfolio_link: {props.applicant.portfolio_link}</p>
+      <p>Skills: {props.applicant.skills.map(skill => (skill.name + ', '))}</p>
       <ApplicantEditForm applicant={props.applicant} fetchApplicants={props.fetchApplicants} />
     </div>
   );
