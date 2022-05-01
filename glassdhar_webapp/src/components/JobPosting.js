@@ -1,9 +1,10 @@
 import Input from '../components/Input.js';
-import { insertApplication } from '../api/api.js';
+import { insertApplication, getJobPostingsApplicants } from '../api/api.js';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
+import Applicant from './Applicant.js';
 
 const JobPosting = (props) => {
   const { register, handleSubmit, formState: { errors } } = useForm({
@@ -34,6 +35,24 @@ const JobPosting = (props) => {
       <p>job_description: {props.jobPosting.job_description}</p>
       <p>date_created: {props.jobPosting.date_created}</p>
       <p>Skills: {props.jobPosting.skills.map(skill => (skill.name + ', '))}</p>
+
+      <p>Applicants for this job postings:</p>
+      <div>
+        {props.jobPosting.applicants.map(applicant => {
+          return (
+            <>
+              <hr />
+              <Applicant applicant={applicant} />
+              <hr />
+            </>
+          );
+        })}
+      </div>
+      {/* {postingApplicants.length > 0
+        ? postingApplicants.map(app => <Applicant key={app.id} applicant={app} noEdit />)
+        : 'No one applied to this job posting'} */}
+      <hr />
+      <div />
       <form onSubmit={handleSubmit(onSubmit)}>
         <Input
           name='applicant_id'
@@ -46,6 +65,7 @@ const JobPosting = (props) => {
         />
         <input type='submit' />
       </form>
+
     </div>
   );
 };
