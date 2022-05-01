@@ -518,6 +518,22 @@ def getSkills():
     #print(skill_list)
     return jsonify({'skills': skill_list}), 200
 
+@app.route('/skills/create')
+def createSkill():
+  data = request.json['data']
+  name = data.get('name')
+
+  newSkill = Skill(name)
+
+  db.session.add(newSkill)
+  db.session.commit()
+
+  return jsonify({"success": True}), 200
+
+# @app.route('skills/delete/<id>')
+# def deleteSkill():
+  
+#   return jsonify({"success": True}), 200
 
 @app.route('/job-postings/applicants/<job_posting_id>') 
 def getApplicants(job_posting_id):
