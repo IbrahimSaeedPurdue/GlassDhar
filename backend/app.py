@@ -25,6 +25,7 @@ app = Flask(__name__)
 # it's sqlite rn, but will change later
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///glassdhar.db'
 
+app.config["SQLALCHEMY_DATABASE_URI"]= "mysql://root:root@localhost:3306/db1"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
 
