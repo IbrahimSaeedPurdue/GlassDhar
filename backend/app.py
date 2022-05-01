@@ -379,9 +379,23 @@ def updateApplicant():
 
 @app.route('/applicant/all')
 def getAllApplicants():
-  applicants = Applicant.query.all()
-  applicants = [a.to_dict() for a in applicants]
-  return jsonify({'applicants': applicants}), 200
+    applicants = Applicant.query.all()
+    # applicants = [a.to_dict() for a in applicants]
+
+    # add skills
+    #posting_list = [p.to_dict() for p in postings]
+    applicant_list = [a.to_dict() for a in applicants]
+    print(applicant_list)
+    print('\n\n')
+
+    for index in range(len(applicant_list)):
+        applicant_list[index]["skills"] = [a_skill.to_dict() for a_skill in applicants[index].skills]
+        print(applicant_list[index])
+
+    applicants = applicant_list
+
+
+    return jsonify({'applicants': applicants}), 200
 
 @app.route("/applicant/insert", methods=['POST'])
 def insertApplicant():
@@ -518,7 +532,7 @@ def jobPostingFilterByDetails():
 
     for index in range(len(posting_list)):
         posting_list[index]["skills"] = [p_skill.to_dict() for p_skill in postings[index].skills]
-        print(posting_list[index])
+        #print(posting_list[index])
 
     postings = posting_list
 
