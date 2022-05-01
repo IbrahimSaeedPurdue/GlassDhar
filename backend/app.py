@@ -75,6 +75,9 @@ class Company(db.Model, SerializerMixin):
 
 
 class Applicant(db.Model, SerializerMixin):
+    serialize_only = ('id', 'email', 'name',
+                      'gpa', 'graduation_date', 'resume_link', 'github_link', 'portfolio_link')
+    serialize_rules = ('-jobs_applications', '-university_id', '-current_company_id')
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(80), unique=True)
     name = db.Column(db.String(80), nullable=False)
@@ -510,6 +513,11 @@ def getSkills():
   return jsonify({'skills': skills}), 200
 
 
+@app.route('/job-postings/applicants/<job_posting_id>') 
+def getApplicants(job_posting_id):
+    job_posting = JobPosting.query.get(job_posting_id)
+    applicant_list = [a.to_dict() for a in job_posting.applicants ]
+    return jsonify({'applicants': applicant_list}), 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=True)
