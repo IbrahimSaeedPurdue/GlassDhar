@@ -6,12 +6,14 @@ import JobPostings from './pages/JobPostings.js';
 
 
 import CompanyEditForm from './pages/CompanyEditForm.js';
+import ApplicantForm from './pages/ApplicantForm.js';
 function App () {
   return (
     <div className='App'>
       <Routes>
         <Route path='/' element={<CompanyForm />} />
         <Route path='/job-postings' element={<JobPostings />} />
+        <Route path='/applicants' element={<ApplicantForm />} />
       </Routes>
     </div>
   );

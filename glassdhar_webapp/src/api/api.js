@@ -17,7 +17,7 @@ export const insertCompany = ({ name, companySite, industry, numOfEmp, descripti
   });
 };
 
-export const updateCompany = ({companyId, name, companySite, industry, numOfEmp, description }) => {
+export const updateCompany = ({ companyId, name, companySite, industry, numOfEmp, description }) => {
   return flaskApp.post('/company/update', {
     data: {
       company_id: companyId,
@@ -36,6 +36,47 @@ export const deleteCompany = (companyId) => {
       company_id: companyId
     }
   });
+};
+// ------- Applicants -------
+export const insertApplicant = ({ name, email, gpa, graduationDate, resumeLink, githubLink, portfolioLink, companyId, universityId, skills }) => {
+  const gradDate = new Date(graduationDate);
+  const grad_date = gradDate.getDate() + '/' + (gradDate.getMonth() + 1) + '/' + gradDate.getFullYear();
+  return flaskApp.post('applicant/insert', {
+    data: {
+      name: name,
+      email: email,
+      gpa: gpa,
+      graduation_date: grad_date,
+      resume_link: resumeLink,
+      github_link: githubLink,
+      portfolio_link: portfolioLink,
+      current_company_id: companyId,
+      skills: skills,
+      university_id: universityId
+    }
+  });
+};
+
+export const updateApplicant = ({ name, email, gpa, graduationDate, resumeLink, githubLink, portfolioLink, companyId, universityId, skills }) => {
+  const gradDate = new Date(graduationDate);
+  const grad_date = gradDate.getDate() + '/' + (gradDate.getMonth() + 1) + '/' + gradDate.getFullYear();
+
+  return flaskApp.post('applicant/update', {
+    data: {
+      name: name,
+      email: email,
+      gpa: gpa,
+      graduation_date: grad_date,
+      resume_link: resumeLink,
+      github_link: githubLink,
+      portfolio_link: portfolioLink
+    }
+  });
+};
+
+export const getApplicants = () => {
+  return flaskApp.get('/applicant/all')
+  ;
 };
 
 // ------- JOB POSTINGS -------
@@ -66,7 +107,7 @@ export const insertJobPosting = ({ positionName, companyId, location, salary, jo
   });
 };
 
-export const insertApplication = ( applicant_id, job_posting_id ) => {
+export const insertApplication = (applicant_id, job_posting_id) => {
   return flaskApp.post('/application/insert', {
     data: {
       applicant_id: applicant_id,
@@ -75,8 +116,12 @@ export const insertApplication = ( applicant_id, job_posting_id ) => {
   });
 };
 
-
 // ------- SKILLS -------
 export const getSkills = () => {
   return flaskApp.get('/skills/all');
+};
+
+// ------- UNIVERSITIES -------
+export const getUniversities = () => {
+  return flaskApp.get('/uni/all');
 };
