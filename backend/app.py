@@ -23,7 +23,8 @@ import sqlalchemy
 
 app = Flask(__name__)
 # it's sqlite rn, but will change later
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///glassdhar.db'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///glassdhar.db'
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
 
@@ -262,31 +263,31 @@ def insertApplicant():
 
 ### ----- APPLICATION ROUTES ----- ###
 
-@app.route("/application/insert", methods=['POST'])
-def insertApplication():
-    db.session.connection(execution_options={'isolation_level': 'SERIALIZABLE'})
+# @app.route("/application/insert", methods=['POST'])
+# def insertApplication():
+#     db.session.connection(execution_options={'isolation_level': 'SERIALIZABLE'})
 
-    try:
-        data = request.json['data']
-        job_posting_id = data['job_posting_id']
-        applicant_id = data['applicant_id']
+#     try:
+#         data = request.json['data']
+#         job_posting_id = data['job_posting_id']
+#         applicant_id = data['applicant_id']
 
-        if bool(JobPosting.query.filter_by(id=job_posting_id).first()) == False:  # Check if job posting exists
-            return "Job posting doesn't exists, Silly Goose!"
+#         if bool(JobPosting.query.filter_by(id=job_posting_id).first()) == False:  # Check if job posting exists
+#             return "Job posting doesn't exists, Silly Goose!"
 
-        if bool(Applicant.query.filter_by(id=applicant_id).first()) == False:  # Check if applicant exists
-            return "Applicant doesn't exists, Silly Goose!"
+#         if bool(Applicant.query.filter_by(id=applicant_id).first()) == False:  # Check if applicant exists
+#             return "Applicant doesn't exists, Silly Goose!"
 
-        jobposting = JobPosting.query.filter_by(id=job_posting_id).first()
-        applicant = Applicant.query.filter_by(id=applicant_id).first()
-        print(jobposting)
-        jobposting.applicants.append(applicant)
+#         jobposting = JobPosting.query.filter_by(id=job_posting_id).first()
+#         applicant = Applicant.query.filter_by(id=applicant_id).first()
+#         print(jobposting)
+#         jobposting.applicants.append(applicant)
         
-        db.session.commit()
+#         db.session.commit()
 
-        return jsonify({"success": True}), 200
-    except Exception as e:
-        return f"{e}"
+#         return jsonify({"success": True}), 200
+#     except Exception as e:
+#         return f"{e}"
 
 
 
@@ -458,40 +459,40 @@ def getAllApplicants():
 
     return jsonify({'applicants': applicants}), 200
 
-@app.route("/applicant/insert", methods=['POST'])
-def insertApplicant():
+# @app.route("/applicant/insert", methods=['POST'])
+# def insertApplicant():
 
-    try:
-        data = request.json['data']
-        skills = data['skills']
-        email = data['email']
-        print(email)
-        if bool(Applicant.query.filter_by(email=email).first()):  # Check if applicant exists
-            return "Applicant already exists, Silly Goose!"
-        app1 = Applicant(
-                email = data['email'],
-                name = data['name'],
-                gpa = data['gpa'],
-                graduation_date = datetime.strptime(data['graduation_date'], "%d/%m/%Y"),
-                resume_link = data['resume_link'],
-                github_link = data['github_link'],
-                portfolio_link = data['portfolio_link']
-            )
-        db.session.add(app1)
-        currUni = University.query.get(data["university_id"])
-        print(currUni)
-        print(data)
-        #app1 = Applicant.query.get(data["id"])
-        currUni.students.append(app1)
-        skills_list = [Skill.query.get(id) for id in skills]
-        app1.skills.extend(tuple(skills_list))
-        currentCompany = Company.query.get(data["current_company_id"])
-        currentCompany.employees.append(app1)
-        db.session.commit()
+#     try:
+#         data = request.json['data']
+#         skills = data['skills']
+#         email = data['email']
+#         print(email)
+#         if bool(Applicant.query.filter_by(email=email).first()):  # Check if applicant exists
+#             return "Applicant already exists, Silly Goose!"
+#         app1 = Applicant(
+#                 email = data['email'],
+#                 name = data['name'],
+#                 gpa = data['gpa'],
+#                 graduation_date = datetime.strptime(data['graduation_date'], "%d/%m/%Y"),
+#                 resume_link = data['resume_link'],
+#                 github_link = data['github_link'],
+#                 portfolio_link = data['portfolio_link']
+#             )
+#         db.session.add(app1)
+#         currUni = University.query.get(data["university_id"])
+#         print(currUni)
+#         print(data)
+#         #app1 = Applicant.query.get(data["id"])
+#         currUni.students.append(app1)
+#         skills_list = [Skill.query.get(id) for id in skills]
+#         app1.skills.extend(tuple(skills_list))
+#         currentCompany = Company.query.get(data["current_company_id"])
+#         currentCompany.employees.append(app1)
+#         db.session.commit()
 
-        return jsonify({"success": True}), 200
-    except Exception as e:
-        return f"{e}"
+#         return jsonify({"success": True}), 200
+#     except Exception as e:
+#         return f"{e}"
 
 
 
