@@ -290,7 +290,29 @@ def insertApplicant():
 #     except Exception as e:
 #         return f"{e}"
 
+@app.route("/application/insert", methods=['POST'])
+def insertApplication():
+    try:
+        data = request.json['data']
+        job_posting_id = data['job_posting_id']
+        applicant_id = data['applicant_id']
 
+        if bool(JobPosting.query.filter_by(id=job_posting_id).first()) == False:  # Check if job posting exists
+            return "Job posting doesn't exists, Silly Goose!"
+
+        if bool(Applicant.query.filter_by(id=applicant_id).first()) == False:  # Check if applicant exists
+            return "Applicant doesn't exists, Silly Goose!"
+
+        jobposting = JobPosting.query.filter_by(id=job_posting_id).first()
+        applicant = Applicant.query.filter_by(id=applicant_id).first()
+        print(jobposting)
+        jobposting.applicants.append(applicant)
+
+        db.session.commit()
+
+        return jsonify({"success": True}), 200
+    except Exception as e:
+        return f"{e}"
 
 ### ----- COMPANY ROUTES ----- ###
 
