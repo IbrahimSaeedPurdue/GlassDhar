@@ -1,5 +1,3 @@
-import json
-from operator import index
 import os
 
 from flask import Flask, request, jsonify
@@ -567,6 +565,10 @@ def deleteJobPosting():
       return "Job Posting doesn't exists, Silly Goose!"
 
     JobPosting.query.filter_by(id=id).delete()
+
+    # query = "DELETE FROM job_posting WHERE id = :id;"
+    # db.session.execute(query, {'id': str(id)})
+    
     db.session.commit()
 
     return jsonify({"success": True}), 200
@@ -678,22 +680,19 @@ def getSkills():
     #print(skill_list)
     return jsonify({'skills': skill_list}), 200
 
-@app.route('/skills/create')
+@app.route('/skills/create', methods=["POST"])
 def createSkill():
   data = request.json['data']
   name = data.get('name')
 
-  newSkill = Skill(name)
+  # newSkill = Skill(name)
+  query = "INSERT INTO Skill(name) VALUES(:name)"
+  db.session.execute(query, {"name": name})
 
-  db.session.add(newSkill)
+  # db.session.add(newSkill)
   db.session.commit()
 
   return jsonify({"success": True}), 200
-
-# @app.route('skills/delete/<id>')
-# def deleteSkill():
-  
-#   return jsonify({"success": True}), 200
 
 @app.route('/job-postings/applicants/<job_posting_id>') 
 def getApplicants(job_posting_id):
@@ -703,14 +702,15 @@ def getApplicants(job_posting_id):
     applicant_list = [a.to_dict() for a in job_posting.applicants ]
     return jsonify({'applicants': applicant_list}), 200
 
-@app.route('/uni/create')
+@app.route('/uni/create', methods=['POST'])
 def createUni():
   data = request.json['data']
   name = data.get('name')
 
-  newUni = University(name)
+  # newUni = University(name)
+  query = "INSERT INTO University(name) VALUES(:name)"
+  db.session.execute(query, {"name": name})
 
-  db.session.add(newUni)
   db.session.commit()
 
   return jsonify({"success": True}), 200
